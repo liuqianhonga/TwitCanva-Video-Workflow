@@ -14,6 +14,7 @@ export interface GenerateImageParams {
   imageBase64?: string | string[]; // Supports single image or array of images
   imageModel?: string; // Image model version (e.g., 'gemini-pro', 'kling-v2')
   nodeId?: string; // ID of the node initiating generation
+  comfyWorkflowHint?: string; // Optional ComfyUI workflow hint for backend routing
   // Kling V1.5 reference settings
   klingReferenceMode?: 'subject' | 'face';
   klingFaceIntensity?: number; // 0-100
@@ -28,6 +29,8 @@ export interface GenerateVideoParams {
   resolution?: string; // Add resolution to params
   duration?: number; // Video duration in seconds (e.g., 5, 6, 8, 10)
   videoModel?: string; // Video model version (e.g., 'veo-3.1', 'kling-v2-1')
+  videoMode?: 'standard' | 'frame-to-frame' | 'motion-control'; // Video generation mode hint for backend routing
+  comfyWorkflowHint?: string; // Optional ComfyUI workflow hint for backend routing
   motionReferenceUrl?: string; // For Kling 2.6 motion control
   generateAudio?: boolean; // For Kling 2.6 and Veo 3.1 native audio (default: true)
   nodeId?: string; // ID of the node initiating generation

@@ -90,6 +90,7 @@ export default function App() {
   });
 
   const [canvasTheme, setCanvasTheme] = useState<'dark' | 'light'>('dark');
+  const [isSpacePressed, setIsSpacePressed] = useState(false);
 
   // Panel state management (history, chat, asset library, expand)
   const {
@@ -838,10 +839,45 @@ export default function App() {
   // EVENT HANDLERS
   // ============================================================================
 
+  // Track Space key for canvas panning (Space + Left Mouse)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        setIsSpacePressed(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        setIsSpacePressed(false);
+      }
+    };
+
+    const handleWindowBlur = () => {
+      setIsSpacePressed(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleWindowBlur);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleWindowBlur);
+    };
+  }, []);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     if ((e.target as HTMLElement).id === 'canvas-background') {
-      // Left-click (button 0): Start selection box
-      if (e.button === 0) {
+      // Space + Left-click: Start panning
+      if (e.button === 0 && isSpacePressed) {
+        startPanning(e);
+        setSelectedConnection(null);
+        setContextMenu(prev => ({ ...prev, isOpen: false }));
+      }
+      // Left-click: Start selection box
+      else if (e.button === 0) {
         startSelection(e);
         clearSelection();
         setSelectedConnection(null);
@@ -1005,6 +1041,7 @@ export default function App() {
         onToggleCharacter={storyboardGenerator.toggleCharacter}
         onSetSceneCount={storyboardGenerator.setSceneCount}
         onSetStory={storyboardGenerator.setStory}
+        onSetSelectedImageModel={storyboardGenerator.setSelectedImageModel}
         onUpdateScript={storyboardGenerator.updateScript}
         onGenerateScripts={storyboardGenerator.generateScripts}
         onBrainstormStory={storyboardGenerator.brainstormStory}

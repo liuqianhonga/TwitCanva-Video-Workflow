@@ -142,5 +142,6 @@ export interface NodeGroup {
     styleAnchor?: string;
     characterDNA?: Record<string, string>;
     compositeImageUrl?: string | null;
+    selectedImageModel?: string;
   };
 }

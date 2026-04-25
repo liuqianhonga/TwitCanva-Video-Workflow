@@ -2,17 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   LayoutGrid,
   Image as ImageIcon,
-  MessageSquare,
   History,
   Wrench,
-  MoreHorizontal,
   Plus,
   Film
 } from 'lucide-react';
-
-// ============================================================================
-// TIKTOK ICON COMPONENT
-// ============================================================================
+import { useI18n } from '../i18n/I18nProvider';
 
 const TikTokIcon: React.FC<{ size?: number; className?: string }> = ({ size = 20, className }) => (
   <svg
@@ -26,10 +21,6 @@ const TikTokIcon: React.FC<{ size?: number; className?: string }> = ({ size = 20
   </svg>
 );
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
 interface ToolbarProps {
   onAddClick?: (e: React.MouseEvent) => void;
   onWorkflowsClick?: (e: React.MouseEvent) => void;
@@ -37,13 +28,9 @@ interface ToolbarProps {
   onAssetsClick?: (e: React.MouseEvent) => void;
   onTikTokClick?: (e: React.MouseEvent) => void;
   onStoryboardClick?: (e: React.MouseEvent) => void;
-  onToolsOpen?: () => void; // Called when tools dropdown opens to close other panels
+  onToolsOpen?: () => void;
   canvasTheme?: 'dark' | 'light';
 }
-
-// ============================================================================
-// COMPONENT
-// ============================================================================
 
 export const Toolbar: React.FC<ToolbarProps> = ({
   onAddClick,
@@ -57,8 +44,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 }) => {
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const toolsRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (toolsRef.current && !toolsRef.current.contains(e.target as Node)) {
@@ -80,7 +67,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     callback?.(e);
   };
 
-  // Theme-aware styles
   const isDark = canvasTheme === 'dark';
 
   return (
@@ -99,14 +85,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           className={`hover:scale-125 transition-all duration-200 ${isDark ? 'text-neutral-400 hover:text-white' : 'text-neutral-500 hover:text-neutral-900'
             }`}
           onClick={onWorkflowsClick}
-          title="My Workflows"
+          title={t('toolbar.workflows')}
         >
           <LayoutGrid size={20} />
         </button>
         <button
           className={`hover:scale-125 transition-all duration-200 ${isDark ? 'text-neutral-400 hover:text-white' : 'text-neutral-500 hover:text-neutral-900'
             }`}
-          title="Assets"
+          title={t('toolbar.assets')}
           onClick={onAssetsClick}
         >
           <ImageIcon size={20} />
@@ -115,12 +101,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           className={`hover:scale-125 transition-all duration-200 ${isDark ? 'text-neutral-400 hover:text-white' : 'text-neutral-500 hover:text-neutral-900'
             }`}
           onClick={onHistoryClick}
-          title="History"
+          title={t('toolbar.history')}
         >
           <History size={20} />
         </button>
 
-        {/* Tools Dropdown */}
         <div className="relative" ref={toolsRef}>
           <button
             className={`hover:scale-125 transition-all duration-200 ${isDark
@@ -129,16 +114,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               }`}
             onClick={() => {
               if (!isToolsOpen) {
-                onToolsOpen?.(); // Close other panels when opening tools
+                onToolsOpen?.();
               }
               setIsToolsOpen(!isToolsOpen);
             }}
-            title="Tools"
+            title={t('toolbar.tools')}
           >
             <Wrench size={20} />
           </button>
 
-          {/* Dropdown Menu */}
           {isToolsOpen && (
             <div className={`absolute left-10 top-0 rounded-lg shadow-2xl py-2 min-w-[240px] z-50 ${isDark ? 'bg-[#1a1a1a] border border-neutral-700' : 'bg-white border border-neutral-200'
               }`}>
@@ -151,12 +135,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   <TikTokIcon size={16} className={isDark ? 'text-white' : 'text-neutral-700'} />
                 </div>
                 <div className="text-left">
-                  <p className={`text-sm ${isDark ? 'text-neutral-200 group-hover:text-white' : 'text-neutral-700 group-hover:text-neutral-900'}`}>Import TikTok</p>
-                  <p className={`text-xs ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>Download without watermark</p>
+                  <p className={`text-sm ${isDark ? 'text-neutral-200 group-hover:text-white' : 'text-neutral-700 group-hover:text-neutral-900'}`}>{t('toolbar.importTikTok')}</p>
+                  <p className={`text-xs ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>{t('toolbar.downloadWithoutWatermark')}</p>
                 </div>
               </button>
 
-              {/* Storyboard Generator */}
               <button
                 onClick={handleToolClick(onStoryboardClick)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 transition-colors group ${isDark ? 'hover:bg-neutral-800' : 'hover:bg-neutral-100'
@@ -166,8 +149,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   <Film size={16} className={isDark ? 'text-white' : 'text-neutral-700'} />
                 </div>
                 <div className="text-left">
-                  <p className={`text-sm ${isDark ? 'text-neutral-200 group-hover:text-white' : 'text-neutral-700 group-hover:text-neutral-900'}`}>Storyboard Generator</p>
-                  <p className={`text-xs ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>Create scenes with AI</p>
+                  <p className={`text-sm ${isDark ? 'text-neutral-200 group-hover:text-white' : 'text-neutral-700 group-hover:text-neutral-900'}`}>{t('toolbar.storyboardGenerator')}</p>
+                  <p className={`text-xs ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>{t('toolbar.createScenesWithAI')}</p>
                 </div>
               </button>
             </div>
@@ -177,9 +160,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
       <div className={`w-8 h-[1px] my-1 ${isDark ? 'bg-neutral-800' : 'bg-neutral-200'}`}></div>
 
-      <button className={`w-8 h-8 rounded-full overflow-hidden mb-2 hover:scale-110 transition-all duration-200 ${isDark ? 'border border-neutral-700' : 'border border-neutral-300'
+      <button title={t('toolbar.profile')} className={`w-8 h-8 rounded-full overflow-hidden mb-2 hover:scale-110 transition-all duration-200 ${isDark ? 'border border-neutral-700' : 'border border-neutral-300'
         }`}>
-        <img src="https://picsum.photos/40/40" alt="Profile" className="w-full h-full object-cover" />
+        <img src="https://picsum.photos/40/40" alt={t('toolbar.profile')} className="w-full h-full object-cover" />
       </button>
     </div>
   );

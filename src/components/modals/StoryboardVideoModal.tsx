@@ -47,6 +47,8 @@ const VIDEO_MODELS = [
             8: ['Auto', '720p', '1080p']
         }
     },
+    { id: 'comfy-video-standard', name: 'ComfyUI Standard', provider: 'comfy', durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
+    { id: 'comfy-video-frame2frame', name: 'ComfyUI Frame-to-Frame', provider: 'comfy', durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
     { id: 'kling-v2-1', name: 'Kling V2.1', provider: 'kling', recommended: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
     { id: 'kling-v2-1-master', name: 'Kling V2.1 Master', provider: 'kling', durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
     { id: 'kling-v2-5-turbo', name: 'Kling V2.5 Turbo', provider: 'kling', durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
@@ -427,6 +429,26 @@ export const StoryboardVideoModal: React.FC<StoryboardVideoModalProps> = ({
                                                     {settings.model === model.id && <Check size={14} />}
                                                 </button>
                                             ))}
+
+                                            {/* ComfyUI */}
+                                            {VIDEO_MODELS.filter(m => m.provider === 'comfy').length > 0 && (
+                                                <>
+                                                    <div className="px-3 py-2 text-[10px] font-bold text-neutral-500 uppercase tracking-wider bg-[#1a1a1a] border-t border-neutral-700">ComfyUI</div>
+                                                    {VIDEO_MODELS.filter(m => m.provider === 'comfy').map(model => (
+                                                        <button
+                                                            key={model.id}
+                                                            onClick={() => handleModelChange(model.id)}
+                                                            className={`w-full flex items-center justify-between px-3 py-2.5 text-xs hover:bg-[#2a2a2a] transition-colors ${settings.model === model.id ? 'text-blue-400 bg-blue-500/10' : 'text-neutral-300'}`}
+                                                        >
+                                                            <div className="flex items-center gap-2">
+                                                                <Film size={14} className="text-cyan-400" />
+                                                                {model.name}
+                                                            </div>
+                                                            {settings.model === model.id && <Check size={14} />}
+                                                        </button>
+                                                    ))}
+                                                </>
+                                            )}
 
                                             {/* Kling */}
                                             <div className="px-3 py-2 text-[10px] font-bold text-neutral-500 uppercase tracking-wider bg-[#1a1a1a] border-t border-neutral-700">Kling AI</div>

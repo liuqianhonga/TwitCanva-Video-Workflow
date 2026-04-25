@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Search, Filter, Trash2 } from 'lucide-react';
+import { useI18n } from '../i18n/I18nProvider';
 
 interface LibraryAsset {
     id: string;
@@ -28,6 +29,16 @@ const CATEGORIES = [
     'Others'
 ];
 
+const CATEGORY_KEY_MAP: Record<string, string> = {
+    All: 'assetLibrary.category.All',
+    Character: 'assetLibrary.category.Character',
+    Scene: 'assetLibrary.category.Scene',
+    Item: 'assetLibrary.category.Item',
+    Style: 'assetLibrary.category.Style',
+    'Sound Effect': 'assetLibrary.category.Sound Effect',
+    Others: 'assetLibrary.category.Others'
+};
+
 export const AssetLibraryPanel: React.FC<AssetLibraryPanelProps> = ({
     isOpen,
     onClose,
@@ -36,6 +47,7 @@ export const AssetLibraryPanel: React.FC<AssetLibraryPanelProps> = ({
     variant = 'panel',
     canvasTheme = 'dark'
 }) => {
+    const { t } = useI18n();
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [assets, setAssets] = useState<LibraryAsset[]>([]);
     const [loading, setLoading] = useState(false);
@@ -91,7 +103,7 @@ export const AssetLibraryPanel: React.FC<AssetLibraryPanelProps> = ({
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className={`flex items-center justify-between p-4 border-b ${isDark ? 'border-neutral-800' : 'border-neutral-200'}`}>
-                        <h2 className={`text-lg font-medium pl-2 ${isDark ? 'text-white' : 'text-neutral-900'}`}>Asset Library</h2>
+                        <h2 className={`text-lg font-medium pl-2 ${isDark ? 'text-white' : 'text-neutral-900'}`}>{t('assetLibrary.title')}</h2>
                         <button onClick={onClose} className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-neutral-800 text-neutral-400 hover:text-white' : 'hover:bg-neutral-100 text-neutral-500 hover:text-neutral-900'}`}>
                             <X size={20} />
                         </button>
@@ -139,6 +151,7 @@ const AssetLibraryContent = ({
     assets, loading, onSelectAsset, onDeleteAsset, variant, canvasTheme = 'dark'
 }: any) => {
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+    const { t } = useI18n();
     const isDark = canvasTheme === 'dark';
 
     const filteredAssets = assets.filter((asset: any) =>
@@ -175,7 +188,7 @@ const AssetLibraryContent = ({
                                 : isDark ? 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-600' : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
                                 }`}
                         >
-                            {cat}
+                            {t(CATEGORY_KEY_MAP[cat] || cat)}
                         </button>
                     ))}
                 </div>
@@ -189,10 +202,10 @@ const AssetLibraryContent = ({
                     }}
                 >
                     {loading ? (
-                        <div className="col-span-full text-center py-10 text-neutral-500">Loading...</div>
+                        <div className="col-span-full text-center py-10 text-neutral-500">{t('assetLibrary.loading')}</div>
                     ) : filteredAssets.length === 0 ? (
                         <div className="col-span-full text-center py-10 text-neutral-500 text-sm">
-                            No assets found in this category.
+                            {t('assetLibrary.noAssetsInCategory')}
                         </div>
                     ) : (
                         filteredAssets.map((asset: any) => (
@@ -219,19 +232,19 @@ const AssetLibraryContent = ({
                                 {/* Delete Button or Confirmation */}
                                 {deleteConfirmId === asset.id ? (
                                     <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-2 z-20 animate-in fade-in duration-200" onClick={(e) => e.stopPropagation()}>
-                                        <span className="text-white text-xs font-medium">Delete?</span>
+                                        <span className="text-white text-xs font-medium">{t('assetLibrary.deletePrompt')}</span>
                                         <div className="flex gap-2">
                                             <button
                                                 className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded transition-colors"
                                                 onClick={(e) => handleConfirmDelete(e, asset.id)}
                                             >
-                                                Yes
+                                                {t('assetLibrary.yes')}
                                             </button>
                                             <button
                                                 className="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs rounded transition-colors"
                                                 onClick={handleCancelDelete}
                                             >
-                                                No
+                                                {t('assetLibrary.no')}
                                             </button>
                                         </div>
                                     </div>
@@ -239,7 +252,7 @@ const AssetLibraryContent = ({
                                     <button
                                         className="absolute top-1 right-1 p-1.5 bg-black/60 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80 z-10"
                                         onClick={(e) => handleDeleteClick(e, asset.id)}
-                                        title="Delete Asset"
+                                        title={t('assetLibrary.deleteAsset')}
                                     >
                                         <Trash2 size={14} />
                                     </button>

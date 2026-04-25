@@ -322,6 +322,7 @@ export const useGeneration = ({ nodes, updateNode }: UseGenerationProps) => {
                     resolution: node.resolution,
                     duration: node.videoDuration,
                     videoModel: node.videoModel,
+                    videoMode: node.videoMode,
                     motionReferenceUrl,
                     generateAudio: node.generateAudio, // For Kling 2.6 and Veo 3.1 native audio
                     nodeId: id

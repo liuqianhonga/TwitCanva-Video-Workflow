@@ -35,6 +35,7 @@ export interface StoryboardState {
     sceneCount: number;
     story: string;
     scripts: SceneScript[];
+    selectedImageModel: string;
     styleAnchor: string;
     characterDNA: Record<string, string>;
     compositeImageUrl: string | null;
@@ -60,6 +61,7 @@ interface StoryboardGroupInfo {
         styleAnchor?: string;
         characterDNA?: Record<string, string>;
         compositeImageUrl?: string | null;
+        selectedImageModel?: string;
     };
 }
 
@@ -76,6 +78,7 @@ export const useStoryboardGenerator = ({ onCreateNodes, viewport }: UseStoryboar
         sceneCount: 3,
         story: '',
         scripts: [],
+        selectedImageModel: 'gemini-pro',
         styleAnchor: '',
         characterDNA: {},
         compositeImageUrl: null,
@@ -99,6 +102,7 @@ export const useStoryboardGenerator = ({ onCreateNodes, viewport }: UseStoryboar
             sceneCount: 3,
             story: '',
             scripts: [],
+            selectedImageModel: 'gemini-pro',
             styleAnchor: '',
             characterDNA: {},
             compositeImageUrl: null,
@@ -415,9 +419,8 @@ export const useStoryboardGenerator = ({ onCreateNodes, viewport }: UseStoryboar
                 prompt,
                 // Set to IDLE - handleGenerate will set to LOADING when called
                 status: NodeStatus.IDLE,
-                // Default to Nano Banana Pro (gemini-3-pro-image-preview)
-                model: 'gemini-pro',
-                imageModel: 'gemini-3-pro-image-preview',
+                model: state.selectedImageModel,
+                imageModel: state.selectedImageModel,
                 aspectRatio: '16:9',
                 resolution: '1K',
                 title: `Scene ${sceneNumber}`,
@@ -440,7 +443,8 @@ export const useStoryboardGenerator = ({ onCreateNodes, viewport }: UseStoryboar
                 sceneCount: state.sceneCount,
                 styleAnchor: state.styleAnchor,
                 characterDNA: state.characterDNA,
-                compositeImageUrl: state.compositeImageUrl
+                compositeImageUrl: state.compositeImageUrl,
+                selectedImageModel: state.selectedImageModel
             }
         });
         closeModal();
@@ -458,6 +462,7 @@ export const useStoryboardGenerator = ({ onCreateNodes, viewport }: UseStoryboar
             styleAnchor: context.styleAnchor || '',
             characterDNA: context.characterDNA || {},
             compositeImageUrl: context.compositeImageUrl || null,
+            selectedImageModel: context.selectedImageModel || 'gemini-pro',
             isGeneratingPreview: false,
             isGenerating: false,
             isBrainstorming: false,
@@ -478,6 +483,7 @@ export const useStoryboardGenerator = ({ onCreateNodes, viewport }: UseStoryboar
         toggleCharacter,
         setSceneCount,
         setStory,
+        setSelectedImageModel,
         updateScript,
         generateScripts,
         brainstormStory,
