@@ -47,6 +47,5 @@ models/
 .agent/
 .shared/
 
-# ComfyUI debug logs and i18n (runtime only)
+# ComfyUI debug logs (runtime only)
 server/debug/
-src/i18n/
