@@ -29,6 +29,7 @@ dist-ssr
 
 # data
 library/
+comfyui_input/
 
 # docs
 docs/cloud_migration_plan.md
@@ -45,3 +46,7 @@ models/
 # Agent workflows and shared utilities
 .agent/
 .shared/
+
+# ComfyUI debug logs and i18n (runtime only)
+server/debug/
+src/i18n/
