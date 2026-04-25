@@ -50,6 +50,9 @@ const VIDEO_ASPECT_RATIOS = ["16:9", "9:16"];
 
 const VIDEO_MODELS = [
     { id: 'veo-3.1', name: 'Veo 3.1', provider: 'google', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [4, 6, 8], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
+    // ComfyUI models
+    { id: 'comfy-video-standard', name: 'ComfyUI Standard', provider: 'comfy', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: false, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
+    { id: 'comfy-video-frame2frame', name: 'ComfyUI Frame-to-Frame', provider: 'comfy', supportsTextToVideo: false, supportsImageToVideo: false, supportsMultiImage: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
     // Kling AI models - Consolidated: removed legacy v1, v1-5, v1-6, v2-master
     { id: 'kling-v2-1', name: 'Kling V2.1', provider: 'kling', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, recommended: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
     { id: 'kling-v2-1-master', name: 'Kling V2.1 Master', provider: 'kling', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
@@ -87,6 +90,15 @@ const IMAGE_MODELS = [
         supportsImageToImage: true,
         supportsMultiImage: true,
         resolutions: ["1K", "2K", "4K"],
+        aspectRatios: ["Auto", "1:1", "9:16", "16:9", "3:4", "4:3", "3:2", "2:3", "5:4", "4:5", "21:9"]
+    },
+    {
+        id: 'comfy-image',
+        name: 'ComfyUI',
+        provider: 'comfy',
+        supportsImageToImage: true,
+        supportsMultiImage: true,
+        resolutions: ["Auto", "1K", "2K"],
         aspectRatios: ["Auto", "1:1", "9:16", "16:9", "3:4", "4:3", "3:2", "2:3", "5:4", "4:5", "21:9"]
     },
     // Kling AI models - Consolidated: removed legacy v1, v2, v2-new
@@ -771,6 +783,29 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
                                             </>
                                         )}
 
+                                        {/* ComfyUI Models */}
+                                        {availableVideoModels.filter(m => m.provider === 'comfy').length > 0 && (
+                                            <>
+                                                <div className="px-3 py-1.5 text-[10px] font-bold text-neutral-500 uppercase tracking-wider bg-[#1f1f1f] border-t border-neutral-700">
+                                                    ComfyUI
+                                                </div>
+                                                {availableVideoModels.filter(m => m.provider === 'comfy').map(model => (
+                                                    <button
+                                                        key={model.id}
+                                                        onClick={() => handleVideoModelChange(model.id)}
+                                                        className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left hover:bg-[#333] transition-colors ${currentVideoModel.id === model.id ? 'text-blue-400' : 'text-neutral-300'
+                                                            }`}
+                                                    >
+                                                        <span className="flex items-center gap-2">
+                                                            <Film size={12} className="text-cyan-400" />
+                                                            {model.name}
+                                                        </span>
+                                                        {currentVideoModel.id === model.id && <Check size={12} />}
+                                                    </button>
+                                                ))}
+                                            </>
+                                        )}
+
                                         {/* Kling Models */}
                                         {availableVideoModels.filter(m => m.provider === 'kling').length > 0 && (
                                             <>
@@ -899,6 +934,29 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
                                                             ) : (
                                                                 <GoogleIcon size={12} className="text-white" />
                                                             )}
+                                                            {model.name}
+                                                        </span>
+                                                        {currentImageModel.id === model.id && <Check size={12} />}
+                                                    </button>
+                                                ))}
+                                            </>
+                                        )}
+
+                                        {/* ComfyUI Models */}
+                                        {availableImageModels.filter(m => m.provider === 'comfy').length > 0 && (
+                                            <>
+                                                <div className="px-3 py-1.5 text-[10px] font-bold text-neutral-500 uppercase tracking-wider bg-[#1f1f1f] border-t border-neutral-700">
+                                                    ComfyUI
+                                                </div>
+                                                {availableImageModels.filter(m => m.provider === 'comfy').map(model => (
+                                                    <button
+                                                        key={model.id}
+                                                        onClick={() => handleImageModelChange(model.id)}
+                                                        className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left hover:bg-[#333] transition-colors ${currentImageModel.id === model.id ? 'text-blue-400' : 'text-neutral-300'
+                                                            }`}
+                                                    >
+                                                        <span className="flex items-center gap-2">
+                                                            <ImageIcon size={12} className="text-cyan-400" />
                                                             {model.name}
                                                         </span>
                                                         {currentImageModel.id === model.id && <Check size={12} />}

@@ -1,0 +1,172 @@
+{
+  "8": {
+    "inputs": {
+      "samples": [
+        "99",
+        0
+      ],
+      "vae": [
+        "95",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "60": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "保存图像"
+    }
+  },
+  "91": {
+    "inputs": {
+      "text": [
+        "111",
+        0
+      ],
+      "clip": [
+        "93",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码"
+    }
+  },
+  "93": {
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "加载CLIP"
+    }
+  },
+  "94": {
+    "inputs": {
+      "unet_name": "z_image_turbo_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "UNet加载器"
+    }
+  },
+  "95": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "加载VAE"
+    }
+  },
+  "98": {
+    "inputs": {
+      "width": [
+        "104",
+        0
+      ],
+      "height": [
+        "105",
+        0
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "空Latent图像"
+    }
+  },
+  "99": {
+    "inputs": {
+      "seed": 141941032302329,
+      "steps": 14,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1,
+      "model": [
+        "94",
+        0
+      ],
+      "positive": [
+        "91",
+        0
+      ],
+      "negative": [
+        "100",
+        0
+      ],
+      "latent_image": [
+        "98",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "K采样器"
+    }
+  },
+  "100": {
+    "inputs": {
+      "conditioning": [
+        "91",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "条件零化"
+    }
+  },
+  "104": {
+    "inputs": {
+      "value": 768
+    },
+    "class_type": "Int",
+    "_meta": {
+      "title": "$width.value"
+    }
+  },
+  "105": {
+    "inputs": {
+      "value": 1024
+    },
+    "class_type": "Int",
+    "_meta": {
+      "title": "$height.value"
+    }
+  },
+  "111": {
+    "inputs": {
+      "text": "**Visual Description (English):**  \nA female subject with an oval face and black short hair, wearing transparent-framed glasses and a white medical mask covering the nose and mouth, positioned slightly left of center in a minimalist studio setting. The background is a plain light gray wall with a dark gray vertical structure on the right edge, approximately 15 cm from the subject. Soft directional lighting comes from the upper left, casting subtle shadows at a 45-degree angle, highlighting facial contours and creating gentle highlights on the forehead and cheekbones. The subject wears a black long-sleeve cotton blend T-shirt with a round neck, snug fit, and slight fabric texture visible under close inspection. She also wears dark gray high-waisted straight-leg trousers made of a semi-stiff synthetic blend, paired with black square-toed flat leather shoes. Her posture is upright, spine straight, shoulders relaxed, arms at sides, with the right hand raised to chest level forming a V-gesture using thumb and index finger, palm facing inward. Feet are together, right foot slightly forward at a 5-degree angle. The image exhibits a shallow depth of field, suggesting a focal length between 85mm and 105mm and an aperture of f/2.8–f/4. Composition follows a near-center alignment with asymmetrical balance due to the background element on the right. No additional accessories or props are present.\n\n**Technical Specs:**  \nFocal Length: 85–105mm | Aperture: f/2.8–f/4 | Style: Minimalist Realistic Portrait Photography | Lighting: Soft Diffused, Left-Upper Directional | Background: Plain Gray Wall with Vertical Structural Element | Subject Position: Center-Left, Golden Ratio Proximity | Skin Texture: Fine, Natural Tone, Even Pore Distribution | Clothing Material: Cotton Blend (Top), Synthetic Blend (Pants), Leather (Shoes) | Gesture: V-Shaped Hand Signal, Right Hand | Pose: Standing, Upright, Slight Forward Foot Shift"
+    },
+    "class_type": "Text _O",
+    "_meta": {
+      "title": "$prompt.text!"
+    }
+  },
+  "112": {
+    "inputs": {
+      "text": "**Visual Description (English):**  \nA female subject with an oval face and black short hair, wearing transparent-framed glasses and a white medical mask covering the nose and mouth, positioned slightly left of center in a minimalist studio setting. The background is a plain light gray wall with a dark gray vertical structure on the right edge, approximately 15 cm from the subject. Soft directional lighting comes from the upper left, casting subtle shadows at a 45-degree angle, highlighting facial contours and creating gentle highlights on the forehead and cheekbones. The subject wears a black long-sleeve cotton blend T-shirt with a round neck, snug fit, and slight fabric texture visible under close inspection. She also wears dark gray high-waisted straight-leg trousers made of a semi-stiff synthetic blend, paired with black square-toed flat leather shoes. Her posture is upright, spine straight, shoulders relaxed, arms at sides, with the right hand raised to chest level forming a V-gesture using thumb and index finger, palm facing inward. Feet are together, right foot slightly forward at a 5-degree angle. The image exhibits a shallow depth of field, suggesting a focal length between 85mm and 105mm and an aperture of f/2.8–f/4. Composition follows a near-center alignment with asymmetrical balance due to the background element on the right. No additional accessories or props are present.\n\n**Technical Specs:**  \nFocal Length: 85–105mm | Aperture: f/2.8–f/4 | Style: Minimalist Realistic Portrait Photography | Lighting: Soft Diffused, Left-Upper Directional | Background: Plain Gray Wall with Vertical Structural Element | Subject Position: Center-Left, Golden Ratio Proximity | Skin Texture: Fine, Natural Tone, Even Pore Distribution | Clothing Material: Cotton Blend (Top), Synthetic Blend (Pants), Leather (Shoes) | Gesture: V-Shaped Hand Signal, Right Hand | Pose: Standing, Upright, Slight Forward Foot Shift"
+    },
+    "class_type": "Text _O",
+    "_meta": {
+      "title": "$prompt.text!"
+    }
+  }
+}

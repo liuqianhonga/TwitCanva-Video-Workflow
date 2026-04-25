@@ -19,6 +19,7 @@ const IMAGE_MODELS = [
     { id: 'gemini-pro', name: 'Nano Banana Pro', provider: 'google' },
     { id: 'kling-v1-5', name: 'Kling V1.5', provider: 'kling' },
     { id: 'kling-v2-1', name: 'Kling V2.1', provider: 'kling' },
+    { id: 'comfy-image', name: 'ComfyUI', provider: 'comfy' },
 ];
 
 // ============================================================================
@@ -33,6 +34,7 @@ interface StoryboardGeneratorModalProps {
     onToggleCharacter: (character: CharacterAsset) => void;
     onSetSceneCount: (count: number) => void;
     onSetStory: (story: string) => void;
+    onSetSelectedImageModel: (model: string) => void;
     onUpdateScript: (index: number, updates: Partial<SceneScript>) => void;
     onGenerateScripts: () => Promise<void>;
     onBrainstormStory: () => Promise<void>;
@@ -54,6 +56,7 @@ export const StoryboardGeneratorModal: React.FC<StoryboardGeneratorModalProps> =
     onToggleCharacter,
     onSetSceneCount,
     onSetStory,
+    onSetSelectedImageModel,
     onUpdateScript,
     onGenerateScripts,
     onBrainstormStory,
@@ -497,6 +500,28 @@ export const StoryboardGeneratorModal: React.FC<StoryboardGeneratorModalProps> =
                                 </div>
                             )}
 
+                            {/* Image Model Selector */}
+                            <div className="mb-4">
+                                <label className="block text-sm text-neutral-300 mb-2">Image Model</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {IMAGE_MODELS.map((model) => {
+                                        const isSelected = state.selectedImageModel === model.id;
+                                        return (
+                                            <button
+                                                key={model.id}
+                                                onClick={() => onSetSelectedImageModel(model.id)}
+                                                className={`px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${isSelected
+                                                    ? 'border-violet-500 bg-violet-500/15 text-violet-300'
+                                                    : 'border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-800'
+                                                    }`}
+                                            >
+                                                {model.name}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
                             {/* Scene Count Slider */}
                             <div className="mb-4">
                                 <label className="block text-sm text-neutral-300 mb-2">
@@ -707,7 +732,7 @@ export const StoryboardGeneratorModal: React.FC<StoryboardGeneratorModalProps> =
                                     <div className="text-center">
                                         <Loader2 size={48} className="animate-spin text-purple-500 mx-auto mb-4" />
                                         <p className="text-white font-medium">Generating Preview...</p>
-                                        <p className="text-neutral-400 text-sm mt-2">Creating a cohesive storyboard with Nano Banana Pro</p>
+                                        <p className="text-neutral-400 text-sm mt-2">Creating a cohesive storyboard with {IMAGE_MODELS.find(m => m.id === state.selectedImageModel)?.name || state.selectedImageModel}</p>
                                     </div>
                                 ) : state.compositeImageUrl ? (
                                     <div className="relative w-full h-full flex items-center justify-center">
@@ -761,7 +786,7 @@ export const StoryboardGeneratorModal: React.FC<StoryboardGeneratorModalProps> =
                                     <div className="text-neutral-400">Scenes:</div>
                                     <div className="text-white">{state.scripts.length}</div>
                                     <div className="text-neutral-400">Model:</div>
-                                    <div className="text-white">Nano Banana Pro</div>
+                                    <div className="text-white">{IMAGE_MODELS.find(m => m.id === state.selectedImageModel)?.name || state.selectedImageModel}</div>
                                     <div className="text-neutral-400">Preview:</div>
                                     <div className="text-white">{state.compositeImageUrl ? 'Generated' : 'Not available'}</div>
                                 </div>

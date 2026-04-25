@@ -31,8 +31,9 @@ const IMAGES_DIR = path.join(LIBRARY_DIR, 'images');
 const VIDEOS_DIR = path.join(LIBRARY_DIR, 'videos');
 const CHATS_DIR = path.join(LIBRARY_DIR, 'chats');
 const LIBRARY_ASSETS_DIR = path.join(LIBRARY_DIR, 'assets');
+const COMFYUI_INPUT_DIR = path.join(__dirname, '..', 'comfyui_input');
 
-[LIBRARY_DIR, WORKFLOWS_DIR, IMAGES_DIR, VIDEOS_DIR, CHATS_DIR, LIBRARY_ASSETS_DIR].forEach(dir => {
+[LIBRARY_DIR, WORKFLOWS_DIR, IMAGES_DIR, VIDEOS_DIR, CHATS_DIR, LIBRARY_ASSETS_DIR, COMFYUI_INPUT_DIR].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
@@ -48,6 +49,13 @@ app.use('/library', (req, res, next) => {
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     next();
 }, express.static(LIBRARY_DIR));
+
+// Serve ComfyUI input images so ComfyUI can load them via HTTP
+app.use('/comfyui-input', (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+}, express.static(COMFYUI_INPUT_DIR));
 
 
 const API_KEY = process.env.GEMINI_API_KEY;
@@ -87,19 +95,33 @@ if (!HAILUO_API_KEY) {
 // ============================================================================
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const FAL_API_KEY = process.env.FAL_API_KEY;
 
 if (!OPENAI_API_KEY) {
     console.warn("SERVER WARNING: OPENAI_API_KEY not set. OpenAI GPT Image models will not work.");
 }
 
 // ============================================================================
-// FAL.AI CONFIGURATION (for Kling 2.6 Motion Control)
+// COMFYUI CONFIGURATION
 // ============================================================================
 
-const FAL_API_KEY = process.env.FAL_API_KEY;
+const COMFYUI_BASE_URL = process.env.COMFYUI_BASE_URL;
+const COMFYUI_API_KEY = process.env.COMFYUI_API_KEY;
+const COMFY_WF_IMAGE_T2I = process.env.COMFY_WF_IMAGE_T2I;
+const COMFY_WF_IMAGE_I2I_SINGLE = process.env.COMFY_WF_IMAGE_I2I_SINGLE;
+const COMFY_WF_IMAGE_I2I_MULTI = process.env.COMFY_WF_IMAGE_I2I_MULTI;
+const COMFY_WF_VIDEO_STANDARD = process.env.COMFY_WF_VIDEO_STANDARD;
+const COMFY_WF_VIDEO_FRAME2FRAME = process.env.COMFY_WF_VIDEO_FRAME2FRAME;
 
-if (!FAL_API_KEY) {
-    console.warn("SERVER WARNING: FAL_API_KEY not set. Kling 2.6 Motion Control will not work.");
+const COMFYUI_TIMEOUT_MS = process.env.COMFYUI_TIMEOUT_MS
+    ? parseInt(process.env.COMFYUI_TIMEOUT_MS, 10)
+    : undefined;
+const COMFYUI_POLL_INTERVAL_MS = process.env.COMFYUI_POLL_INTERVAL_MS
+    ? parseInt(process.env.COMFYUI_POLL_INTERVAL_MS, 10)
+    : undefined;
+
+if (COMFYUI_BASE_URL) {
+    console.log('ComfyUI integration enabled via COMFYUI_BASE_URL');
 }
 
 // Set up app.locals for sharing config with route modules
@@ -109,6 +131,15 @@ app.locals.KLING_SECRET_KEY = KLING_SECRET_KEY;
 app.locals.HAILUO_API_KEY = HAILUO_API_KEY;
 app.locals.OPENAI_API_KEY = OPENAI_API_KEY;
 app.locals.FAL_API_KEY = FAL_API_KEY;
+app.locals.COMFYUI_BASE_URL = COMFYUI_BASE_URL;
+app.locals.COMFYUI_API_KEY = COMFYUI_API_KEY;
+app.locals.COMFY_WF_IMAGE_T2I = COMFY_WF_IMAGE_T2I;
+app.locals.COMFY_WF_IMAGE_I2I_SINGLE = COMFY_WF_IMAGE_I2I_SINGLE;
+app.locals.COMFY_WF_IMAGE_I2I_MULTI = COMFY_WF_IMAGE_I2I_MULTI;
+app.locals.COMFY_WF_VIDEO_STANDARD = COMFY_WF_VIDEO_STANDARD;
+app.locals.COMFY_WF_VIDEO_FRAME2FRAME = COMFY_WF_VIDEO_FRAME2FRAME;
+app.locals.COMFYUI_TIMEOUT_MS = COMFYUI_TIMEOUT_MS;
+app.locals.COMFYUI_POLL_INTERVAL_MS = COMFYUI_POLL_INTERVAL_MS;
 app.locals.IMAGES_DIR = IMAGES_DIR;
 app.locals.VIDEOS_DIR = VIDEOS_DIR;
 app.locals.LIBRARY_DIR = LIBRARY_DIR;

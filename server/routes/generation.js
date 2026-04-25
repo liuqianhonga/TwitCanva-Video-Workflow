@@ -8,11 +8,17 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { generateKlingVideo, generateKlingImage, generateKlingMultiImage } from '../services/kling.js';
 import { generateGeminiImage, generateVeoVideo } from '../services/gemini.js';
 import { generateHailuoVideo } from '../services/hailuo.js';
 import { generateOpenAIImage } from '../services/openai.js';
+import { generateComfyImage, generateComfyVideo } from '../services/comfyui.js';
+import COMFY_WORKFLOWS from '../config/comfy-workflows.js';
 import { resolveImageToBase64, saveBufferToFile } from '../utils/imageHelpers.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -23,17 +29,92 @@ const router = express.Router();
 router.post('/generate-image', async (req, res) => {
     try {
         const { nodeId, prompt, aspectRatio, resolution, imageBase64: rawImageBase64, imageModel, klingReferenceMode, klingFaceIntensity, klingSubjectIntensity } = req.body;
-        const { GEMINI_API_KEY, KLING_ACCESS_KEY, KLING_SECRET_KEY, OPENAI_API_KEY, IMAGES_DIR } = req.app.locals;
+        const {
+            GEMINI_API_KEY,
+            KLING_ACCESS_KEY,
+            KLING_SECRET_KEY,
+            OPENAI_API_KEY,
+            IMAGES_DIR,
+            COMFYUI_BASE_URL,
+            COMFYUI_API_KEY,
+            COMFY_WF_IMAGE_T2I,
+            COMFY_WF_IMAGE_I2I_SINGLE,
+            COMFY_WF_IMAGE_I2I_MULTI,
+            COMFYUI_TIMEOUT_MS,
+            COMFYUI_POLL_INTERVAL_MS
+        } = req.app.locals;
 
         // Determine provider
+        const isComfyModel = imageModel && imageModel.startsWith('comfy-');
         const isKlingModel = imageModel && imageModel.startsWith('kling-');
         const isOpenAIModel = imageModel && imageModel.startsWith('gpt-image-');
 
         let imageBuffer;
         let imageFormat = 'png';
 
-        if (isKlingModel) {
-            // --- KLING AI IMAGE GENERATION ---
+        if (isComfyModel) {
+            // --- COMFYUI IMAGE GENERATION ---
+            if (!COMFYUI_BASE_URL) {
+                return res.status(500).json({
+                    error: "ComfyUI base URL not configured. Add COMFYUI_BASE_URL to .env"
+                });
+            }
+
+            let imageBase64Array = null;
+            if (rawImageBase64) {
+                const rawImages = Array.isArray(rawImageBase64) ? rawImageBase64 : [rawImageBase64];
+                imageBase64Array = rawImages.map(img => resolveImageToBase64(img)).filter(Boolean);
+            }
+
+            // Auto-select workflow based on whether reference images are provided
+            // - No images → text-to-image (z-image-t2i)
+            // - Has images → image-to-image (flux2-klein-image-edit)
+            const refCount   = imageBase64Array?.length || 0;
+            const workflowKey = refCount === 0
+                ? 'comfy-z-image-t2i'
+                : 'comfy-flux2-klein-image-edit';
+
+            const workflowEntry = COMFY_WORKFLOWS[workflowKey];
+
+            if (!workflowEntry) {
+                return res.status(400).json({
+                    error: `ComfyUI workflow "${workflowKey}" not found. Currently available: ${Object.keys(COMFY_WORKFLOWS).join(', ')}.`
+                });
+            }
+
+            const debugPayload = {
+                timestamp: new Date().toISOString(),
+                workflowKey,
+                workflowFile: workflowEntry.json,
+                preprocessor: workflowEntry.module || null,
+                prompt,
+                aspectRatio,
+                resolution,
+                refImages: imageBase64Array?.length || 0,
+                imageBase64Array,
+            };
+            const debugFile = path.join(__dirname, '../debug', `req_${Date.now()}_${Math.random().toString(36).slice(2, 7)}.json`);
+            fs.mkdirSync(path.dirname(debugFile), { recursive: true });
+            fs.writeFileSync(debugFile, JSON.stringify(debugPayload, null, 2));
+            console.log(`[ComfyUI] Request saved: ${debugFile}`);
+
+            const result = await generateComfyImage({
+                prompt,
+                imageBase64Array,
+                aspectRatio,
+                resolution,
+                workflowFile: workflowEntry.json,
+                workflowPreprocessor: workflowEntry.module || null,
+                baseUrl: COMFYUI_BASE_URL,
+                apiKey: COMFYUI_API_KEY,
+                timeoutMs: COMFYUI_TIMEOUT_MS,
+                pollIntervalMs: COMFYUI_POLL_INTERVAL_MS
+            });
+
+            imageBuffer = result.imageBuffer;
+            imageFormat = result.imageFormat || 'png';
+
+        } else if (isKlingModel) {
             if (!KLING_ACCESS_KEY || !KLING_SECRET_KEY) {
                 return res.status(500).json({
                     error: "Kling API credentials not configured. Add KLING_ACCESS_KEY and KLING_SECRET_KEY to .env"
@@ -186,8 +267,20 @@ router.post('/generate-image', async (req, res) => {
 
 router.post('/generate-video', async (req, res) => {
     try {
-        const { nodeId, prompt, imageBase64: rawImageBase64, lastFrameBase64: rawLastFrameBase64, motionReferenceUrl: rawMotionReferenceUrl, aspectRatio, resolution, duration, videoModel } = req.body;
-        const { GEMINI_API_KEY, KLING_ACCESS_KEY, KLING_SECRET_KEY, HAILUO_API_KEY, VIDEOS_DIR } = req.app.locals;
+        const { nodeId, prompt, imageBase64: rawImageBase64, lastFrameBase64: rawLastFrameBase64, motionReferenceUrl: rawMotionReferenceUrl, aspectRatio, resolution, duration, videoModel, videoMode } = req.body;
+        const {
+            GEMINI_API_KEY,
+            KLING_ACCESS_KEY,
+            KLING_SECRET_KEY,
+            HAILUO_API_KEY,
+            VIDEOS_DIR,
+            COMFYUI_BASE_URL,
+            COMFYUI_API_KEY,
+            COMFY_WF_VIDEO_STANDARD,
+            COMFY_WF_VIDEO_FRAME2FRAME,
+            COMFYUI_TIMEOUT_MS,
+            COMFYUI_POLL_INTERVAL_MS
+        } = req.app.locals;
 
         // Resolve file URLs to base64
         const imageBase64 = resolveImageToBase64(rawImageBase64);
@@ -195,12 +288,40 @@ router.post('/generate-video', async (req, res) => {
         const motionReferenceUrl = resolveImageToBase64(rawMotionReferenceUrl);
 
         // Determine provider
+        const isComfyModel = videoModel && videoModel.startsWith('comfy-');
         const isKlingModel = videoModel && videoModel.startsWith('kling-');
         const isHailuoModel = videoModel && videoModel.startsWith('hailuo-');
 
         let videoBuffer;
 
-        if (isKlingModel) {
+        if (isComfyModel) {
+            // --- COMFYUI VIDEO GENERATION ---
+            if (!COMFYUI_BASE_URL) {
+                return res.status(500).json({
+                    error: "ComfyUI base URL not configured. Add COMFYUI_BASE_URL to .env"
+                });
+            }
+
+            const isFrameToFrame = videoMode === 'frame-to-frame' || !!lastFrameBase64;
+            const workflowKey    = isFrameToFrame ? 'comfy-video-frame2frame' : 'comfy-video-standard';
+            const workflowFile   = COMFY_WORKFLOWS[workflowKey];
+
+            videoBuffer = await generateComfyVideo({
+                prompt,
+                imageBase64,
+                lastFrameBase64,
+                aspectRatio,
+                resolution,
+                duration,
+                videoMode,
+                workflowFile,     // config-driven workflow file path
+                baseUrl: COMFYUI_BASE_URL,
+                apiKey: COMFYUI_API_KEY,
+                timeoutMs: COMFYUI_TIMEOUT_MS,
+                pollIntervalMs: COMFYUI_POLL_INTERVAL_MS
+            });
+
+        } else if (isKlingModel) {
             // --- KLING AI VIDEO GENERATION ---
 
             // Check if this is a Kling 2.6 model (route to Fal.ai - official API doesn't support v2.6)

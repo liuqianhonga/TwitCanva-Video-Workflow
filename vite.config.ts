@@ -14,6 +14,10 @@ export default defineConfig(({ mode }) => {
         '/library': {
           target: 'http://localhost:3001',
           changeOrigin: true
+        },
+        '/comfyui-input': {
+          target: 'http://localhost:3001',
+          changeOrigin: true
         }
       }
     },
