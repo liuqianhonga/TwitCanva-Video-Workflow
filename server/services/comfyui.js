@@ -182,10 +182,50 @@ function injectWorkflow(workflow, params) {
         '16:9': { width: 1344, height: 768 },
         '9:16': { width: 768,  height: 1344 },
         '4:3':  { width: 1152, height: 896 },
+        '3:4':  { width: 896,  height: 1152 },
         '3:2':  { width: 1216, height: 832 },
         '2:3':  { width: 832,  height: 1216 },
+        '5:4':  { width: 1152, height: 896 },
+        '4:5':  { width: 896,  height: 1152 },
+        '21:9': { width: 1536, height: 640 },
     };
-    const { width, height } = sizeMap[String(aspectRatio)] || sizeMap['1:1'];
+
+    const parseAspectRatioValue = (value) => {
+        if (!value) return null;
+        const normalized = String(value).trim().toLowerCase();
+        if (!normalized || normalized === 'auto') return null;
+
+        const parsePair = (w, h) => {
+            const width = Number(w);
+            const height = Number(h);
+            if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+                return null;
+            }
+            return width / height;
+        };
+
+        if (normalized.includes(':')) {
+            const [w, h] = normalized.split(':');
+            return parsePair(w, h);
+        }
+        if (normalized.includes('/')) {
+            const [w, h] = normalized.split('/');
+            return parsePair(w, h);
+        }
+
+        const ratio = Number(normalized);
+        return Number.isFinite(ratio) && ratio > 0 ? ratio : null;
+    };
+
+    const ratio = parseAspectRatioValue(aspectRatio);
+    const fallbackSize = ratio
+        ? {
+            width: Math.max(64, Math.round(Math.sqrt(1024 * 1024 * ratio) / 64) * 64),
+            height: Math.max(64, Math.round(Math.sqrt((1024 * 1024) / ratio) / 64) * 64),
+        }
+        : sizeMap['1:1'];
+
+    const { width, height } = sizeMap[String(aspectRatio)] || fallbackSize;
 
     for (const [id, node] of Object.entries(workflow || {})) {
         // Skip internal keys like _meta that aren't actual nodes
@@ -468,9 +508,11 @@ export async function generateComfyVideo({
     aspectRatio,
     resolution,
     duration,
+    frameRate,
     videoMode,
     workflowId,
     workflowFile,
+    workflowPreprocessor,
     baseUrl,
     apiKey,
     timeoutMs,
@@ -484,13 +526,39 @@ export async function generateComfyVideo({
     const effectivePoll    = pollIntervalMs   || DEFAULT_POLL_INTERVAL_MS;
 
     if (workflowFile) {
-        // Config-driven path: load & inject from workflow JSON file
-        const workflow = injectWorkflow(workflowFile, {
-            prompt, negativePrompt: '', aspectRatio,
-            startImage: imageBase64,
-            endImage:   lastFrameBase64,
-            duration,
-        });
+        // Load workflow JSON (no nodes wrapper — top-level keys are node IDs)
+        const workflow = JSON.parse(JSON.stringify(loadWorkflowTemplate(workflowFile)));
+
+        // Debug: save before/after with workflow name for easy identification
+        const wfShortName = path.basename(workflowFile).replace('.json', '');
+        const debugDir = path.join(process.cwd(), 'server', 'debug');
+        fs.mkdirSync(debugDir, { recursive: true });
+        fs.writeFileSync(path.join(debugDir, `wf_before_${wfShortName}_${Date.now()}.json`), JSON.stringify(workflow, null, 2));
+
+        if (workflowPreprocessor) {
+            // Custom pre-processor path (e.g. ltx-2-3-i2v.js)
+            const fileUrl = 'file:///' + workflowPreprocessor.replace(/\\/g, '/');
+            const mod = await import(fileUrl);
+            await mod.inject(workflow, {
+                prompt,
+                duration,
+                frameRate:  frameRate || 24,
+                aspectRatio: aspectRatio || '16:9',
+                resolution: resolution || 'Auto',
+                imageBase64,
+                seed:       null,
+            });
+            fs.writeFileSync(path.join(debugDir, `wf_after_${wfShortName}_${Date.now()}.json`), JSON.stringify(workflow, null, 2));
+        } else {
+            // Built-in injector (legacy video workflows)
+            injectWorkflow(workflow, {
+                prompt, negativePrompt: '', aspectRatio,
+                startImage: imageBase64,
+                endImage:   lastFrameBase64,
+                duration,
+            });
+            fs.writeFileSync(path.join(debugDir, `wf_after_${wfShortName}_${Date.now()}.json`), JSON.stringify(workflow, null, 2));
+        }
 
         const promptId = await submitComfyWorkflow({
             baseUrl, apiKey, workflow, timeoutMs: effectiveTimeout

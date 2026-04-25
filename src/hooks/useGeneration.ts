@@ -100,13 +100,12 @@ export const useGeneration = ({ nodes, updateNode }: UseGenerationProps) => {
         const combinedPrompt = [...textNodePrompts, node.prompt].filter(Boolean).join('\n\n');
 
         // Check if prompt is required
-        // For Kling frame-to-frame with both start and end frames, prompt is optional
-        const isKlingFrameToFrame =
-            node.type === NodeType.VIDEO &&
-            node.videoModel?.startsWith('kling-') &&
-            (node.parentIds && node.parentIds.length >= 2);
+        // Video nodes allow empty prompt
+        const isVideoNode = node.type === NodeType.VIDEO;
 
-        if (!combinedPrompt && !isKlingFrameToFrame) return;
+        if (!combinedPrompt && !isVideoNode) {
+            return;
+        }
 
         updateNode(id, { status: NodeStatus.LOADING, generationStartTime: Date.now() });
 

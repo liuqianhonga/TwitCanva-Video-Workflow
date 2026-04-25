@@ -44,6 +44,12 @@ const COMFY_WORKFLOWS = {
         json:   path.join(WORKFLOWS_DIR, 'flux2-klein-image-edit.json'),
         module: path.join(WORKFLOWS_DIR, 'flux2-klein-image-edit.js'),
     },
+
+    // ── LTX Video I2V ───────────────────────────────────────────────────────
+    'comfy-ltx-video-i2v': {
+        json:   path.join(WORKFLOWS_DIR, 'ltx-2-3-i2v.json'),
+        module: path.join(WORKFLOWS_DIR, 'ltx-2-3-i2v.js'),
+    },
 };
 
 export default COMFY_WORKFLOWS;

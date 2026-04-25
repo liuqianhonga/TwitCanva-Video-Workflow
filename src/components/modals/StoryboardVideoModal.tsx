@@ -47,15 +47,15 @@ const VIDEO_MODELS = [
             8: ['Auto', '720p', '1080p']
         }
     },
-    { id: 'comfy-video-standard', name: 'ComfyUI Standard', provider: 'comfy', durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
     { id: 'comfy-video-frame2frame', name: 'ComfyUI Frame-to-Frame', provider: 'comfy', durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
+    { id: 'comfy-ltx-video-i2v', name: 'LTX Video', provider: 'comfy', durations: [3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20], resolutions: ['Auto', '720p', '1080p'] },
     { id: 'kling-v2-1', name: 'Kling V2.1', provider: 'kling', recommended: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
     { id: 'kling-v2-1-master', name: 'Kling V2.1 Master', provider: 'kling', durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
     { id: 'kling-v2-5-turbo', name: 'Kling V2.5 Turbo', provider: 'kling', durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
     { id: 'kling-v2-6', name: 'Kling 2.6 (Motion)', provider: 'kling', durations: [5, 10], resolutions: ['Auto', '720p', '1080p'] },
-    { id: 'hailuo-2.3', name: 'Hailuo 2.3', provider: 'hailuo', durations: [5], resolutions: ['768p', '1080p'] },
-    { id: 'hailuo-2.3-fast', name: 'Hailuo 2.3 Fast', provider: 'hailuo', durations: [5], resolutions: ['768p', '1080p'] },
-    { id: 'hailuo-02', name: 'Hailuo 02', provider: 'hailuo', durations: [5], resolutions: ['768p', '1080p'] },
+    { id: 'hailuo-2.3', name: 'Hailuo 2.3', provider: 'hailuo', durations: [5], resolutions: ['Auto', '768p', '1080p'] },
+    { id: 'hailuo-2.3-fast', name: 'Hailuo 2.3 Fast', provider: 'hailuo', durations: [5], resolutions: ['Auto', '768p', '1080p'] },
+    { id: 'hailuo-02', name: 'Hailuo 02', provider: 'hailuo', durations: [5], resolutions: ['Auto', '768p', '1080p'] },
 ];
 
 export const StoryboardVideoModal: React.FC<StoryboardVideoModalProps> = ({
@@ -83,7 +83,7 @@ export const StoryboardVideoModal: React.FC<StoryboardVideoModalProps> = ({
     const [settings, setSettings] = useState({
         model: 'veo-3.1',
         duration: 4, // Default to 4s for Veo
-        resolution: '720p' // Safe default
+        resolution: 'Auto' // LTX Video uses image dimensions when Auto
     });
     const [generatingPrompts, setGeneratingPrompts] = useState<Record<string, boolean>>({});
     const [optimizingPrompts, setOptimizingPrompts] = useState<Record<string, boolean>>({});

@@ -302,24 +302,50 @@ router.post('/generate-video', async (req, res) => {
                 });
             }
 
-            const isFrameToFrame = videoMode === 'frame-to-frame' || !!lastFrameBase64;
-            const workflowKey    = isFrameToFrame ? 'comfy-video-frame2frame' : 'comfy-video-standard';
-            const workflowFile   = COMFY_WORKFLOWS[workflowKey];
+            // Use videoModel as workflow key (videoModel starts with 'comfy-' here)
+            // Backward-compatible alias: comfy-video-standard now uses LTX 2.3 I2V workflow.
+            const workflowKey    = videoModel === 'comfy-video-standard' ? 'comfy-ltx-video-i2v' : videoModel;
+            const workflowEntry = COMFY_WORKFLOWS[workflowKey];
 
-            videoBuffer = await generateComfyVideo({
-                prompt,
-                imageBase64,
-                lastFrameBase64,
-                aspectRatio,
-                resolution,
-                duration,
-                videoMode,
-                workflowFile,     // config-driven workflow file path
-                baseUrl: COMFYUI_BASE_URL,
-                apiKey: COMFYUI_API_KEY,
-                timeoutMs: COMFYUI_TIMEOUT_MS,
-                pollIntervalMs: COMFYUI_POLL_INTERVAL_MS
-            });
+            if (workflowEntry?.json) {
+                // Registry entry with JSON workflow (e.g. ltx-video-i2v)
+                videoBuffer = await generateComfyVideo({
+                    prompt,
+                    imageBase64,
+                    lastFrameBase64,
+                    aspectRatio,
+                    resolution,
+                    duration,
+                    frameRate:   24,
+                    videoMode,
+                    workflowFile:         workflowEntry.json,
+                    workflowPreprocessor: workflowEntry.module,
+                    baseUrl: COMFYUI_BASE_URL,
+                    apiKey: COMFYUI_API_KEY,
+                    timeoutMs: COMFYUI_TIMEOUT_MS,
+                    pollIntervalMs: COMFYUI_POLL_INTERVAL_MS
+                });
+            } else {
+                // Legacy path: derive workflowKey from videoMode, use workflowId
+                const isFrameToFrame = videoMode === 'frame-to-frame' || !!lastFrameBase64;
+                const legacyWorkflowKey = isFrameToFrame ? 'comfy-video-frame2frame' : 'comfy-video-standard';
+                const workflowId = legacyWorkflowKey; // COMFY_WF_VIDEO_STANDARD / COMFY_WF_VIDEO_FRAME2FRAME env var
+
+                videoBuffer = await generateComfyVideo({
+                    prompt,
+                    imageBase64,
+                    lastFrameBase64,
+                    aspectRatio,
+                    resolution,
+                    duration,
+                    videoMode,
+                    workflowId,        // ComfyUI-Manager workflow_id
+                    baseUrl: COMFYUI_BASE_URL,
+                    apiKey: COMFYUI_API_KEY,
+                    timeoutMs: COMFYUI_TIMEOUT_MS,
+                    pollIntervalMs: COMFYUI_POLL_INTERVAL_MS
+                });
+            }
 
         } else if (isKlingModel) {
             // --- KLING AI VIDEO GENERATION ---

@@ -46,22 +46,22 @@ const VIDEO_DURATIONS = [5, 6, 8, 10];
 // durations: Supported video durations in seconds
 // resolutions: Supported resolutions (model-specific)
 // aspectRatios: Supported aspect ratios (most video models support 16:9 and 9:16)
-const VIDEO_ASPECT_RATIOS = ["16:9", "9:16"];
+const VIDEO_ASPECT_RATIOS = ["Auto", "16:9", "9:16"];
 
 const VIDEO_MODELS = [
-    { id: 'veo-3.1', name: 'Veo 3.1', provider: 'google', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [4, 6, 8], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
+    { id: 'veo-3.1', name: 'Veo 3.1', provider: 'google', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [4, 6, 8], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['Auto', '16:9', '9:16'] },
     // ComfyUI models
-    { id: 'comfy-video-standard', name: 'ComfyUI Standard', provider: 'comfy', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: false, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
-    { id: 'comfy-video-frame2frame', name: 'ComfyUI Frame-to-Frame', provider: 'comfy', supportsTextToVideo: false, supportsImageToVideo: false, supportsMultiImage: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
+    { id: 'comfy-video-standard', name: 'LTX 2.3', provider: 'comfy', supportsTextToVideo: false, supportsImageToVideo: true, supportsMultiImage: false, durations: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['Auto', '16:9', '9:16'] },
+    { id: 'comfy-video-frame2frame', name: 'ComfyUI Frame-to-Frame', provider: 'comfy', supportsTextToVideo: false, supportsImageToVideo: false, supportsMultiImage: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['Auto', '16:9', '9:16'] },
     // Kling AI models - Consolidated: removed legacy v1, v1-5, v1-6, v2-master
-    { id: 'kling-v2-1', name: 'Kling V2.1', provider: 'kling', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, recommended: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
-    { id: 'kling-v2-1-master', name: 'Kling V2.1 Master', provider: 'kling', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
-    { id: 'kling-v2-5-turbo', name: 'Kling V2.5 Turbo', provider: 'kling', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
-    { id: 'kling-v2-6', name: 'Kling 2.6 (Motion)', provider: 'kling', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['16:9', '9:16'] },
+    { id: 'kling-v2-1', name: 'Kling V2.1', provider: 'kling', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, recommended: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['Auto', '16:9', '9:16'] },
+    { id: 'kling-v2-1-master', name: 'Kling V2.1 Master', provider: 'kling', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['Auto', '16:9', '9:16'] },
+    { id: 'kling-v2-5-turbo', name: 'Kling V2.5 Turbo', provider: 'kling', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['Auto', '16:9', '9:16'] },
+    { id: 'kling-v2-6', name: 'Kling 2.6 (Motion)', provider: 'kling', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5, 10], resolutions: ['Auto', '720p', '1080p'], aspectRatios: ['Auto', '16:9', '9:16'] },
     // Hailuo AI (MiniMax) models - Note: API appears to only output 5s videos regardless of duration param
-    { id: 'hailuo-2.3', name: 'Hailuo 2.3', provider: 'hailuo', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5], resolutions: ['768p', '1080p'], aspectRatios: ['16:9', '9:16'] },
-    { id: 'hailuo-2.3-fast', name: 'Hailuo 2.3 Fast', provider: 'hailuo', supportsTextToVideo: false, supportsImageToVideo: true, supportsMultiImage: false, durations: [5], resolutions: ['768p', '1080p'], aspectRatios: ['16:9', '9:16'] },
-    { id: 'hailuo-02', name: 'Hailuo 02', provider: 'hailuo', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5], resolutions: ['768p', '1080p'], aspectRatios: ['16:9', '9:16'] },
+    { id: 'hailuo-2.3', name: 'Hailuo 2.3', provider: 'hailuo', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5], resolutions: ['Auto', '768p', '1080p'], aspectRatios: ['Auto', '16:9', '9:16'] },
+    { id: 'hailuo-2.3-fast', name: 'Hailuo 2.3 Fast', provider: 'hailuo', supportsTextToVideo: false, supportsImageToVideo: true, supportsMultiImage: false, durations: [5], resolutions: ['Auto', '768p', '1080p'], aspectRatios: ['Auto', '16:9', '9:16'] },
+    { id: 'hailuo-02', name: 'Hailuo 02', provider: 'hailuo', supportsTextToVideo: true, supportsImageToVideo: true, supportsMultiImage: true, durations: [5], resolutions: ['Auto', '768p', '1080p'], aspectRatios: ['Auto', '16:9', '9:16'] },
 ];
 
 // Image model versions with metadata

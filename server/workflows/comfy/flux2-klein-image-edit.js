@@ -23,22 +23,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
-// ── Remote ComfyUI deployment ─────────────────────────────────────────────────
-// COMFYUI_INPUT_DIR: local writable directory on the backend server where
-//   images are saved before being served over HTTP.
-//   Example: /tmp/comfyui-input  or  D:\comfyui_input
-// COMFYUI_INPUT_URL_BASE: HTTP URL where ComfyUI fetches images.
-//   Must be the externally accessible URL of the backend's /comfyui-input route.
-//   Example: http://your-server:3001/comfyui-input
-//   ComfyUI needs a custom LoadImageFromURL node to load via HTTP.
-// Both variables are required for remote deployment.
-const COMFY_INPUT_DIR = process.env.COMFYUI_INPUT_DIR;
-const COMFY_INPUT_URL_BASE = process.env.COMFYUI_INPUT_URL_BASE;
-
-if (!COMFY_INPUT_DIR || !COMFY_INPUT_URL_BASE) {
-    throw new Error(`[flux2-klein] COMFYUI_INPUT_DIR and COMFYUI_INPUT_URL_BASE must both be set for remote deployment. ` +
-        `COMFYUI_INPUT_DIR=${COMFY_INPUT_DIR}, COMFYUI_INPUT_URL_BASE=${COMFY_INPUT_URL_BASE}`);
-}
+// ── ComfyUI local input directory ─────────────────────────────────────────────
+// COMFYUI_INPUT_DIR: local writable directory shared with ComfyUI LoadImage.
+// Default: Z:\input
+const COMFY_INPUT_DIR = process.env.COMFYUI_INPUT_DIR || 'Z:\\input';
 
 const LATENT_SIZE_MAP = {
     '1:1':  { width: 1024, height: 1024 },
@@ -73,11 +61,7 @@ function saveBase64Image(dataUrl, prefix = 'ref') {
         }
         console.log(`[flux2-klein] Saved: ${filePath} (${fs.statSync(filePath).size} bytes)`);
 
-        // Return URL or filename based on deployment mode
-        if (COMFY_INPUT_URL_BASE) {
-            return `${COMFY_INPUT_URL_BASE}/${name}`;
-        }
-        return name;
+        return fs.existsSync(filePath) ? filePath : null;
     } catch (err) {
         console.error(`[flux2-klein] Failed to save image: ${err.message}`);
         return null;

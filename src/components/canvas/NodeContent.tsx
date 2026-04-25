@@ -210,10 +210,12 @@ export const NodeContent: React.FC<NodeContentProps> = ({
                 </div>
             ) : (
                 /* Placeholder / Empty State for Image/Video */
-                <div className={`relative w-full aspect-[4/3] bg-[#141414] flex flex-col items-center justify-center gap-3 overflow-hidden
-            ${isLoading ? 'animate-pulse' : ''} 
-            ${!selected ? 'rounded-2xl' : 'rounded-xl border border-dashed border-neutral-800'}`
-                }>
+                <div
+                    className={`relative w-full bg-[#141414] flex flex-col items-center justify-center gap-3 overflow-hidden
+            ${isLoading ? 'animate-pulse' : ''}
+            ${!selected ? 'rounded-2xl' : 'rounded-xl border border-dashed border-neutral-800'}`}
+                    style={getAspectRatioStyle()}
+                >
                     {/* Input Image Preview for Video Nodes */}
                     {isVideoType && inputUrl && (
                         <div className="absolute inset-0 z-0">

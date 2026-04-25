@@ -126,7 +126,7 @@ export const CanvasNode: React.FC<CanvasNodeProps> = ({
     // Only detect if we have a result but no stored aspect ratio
     if (!isSuccess || !data.resultUrl || data.resultAspectRatio) return;
 
-    if (data.type === NodeType.VIDEO) {
+    if (data.type === NodeType.VIDEO || data.type === NodeType.LOCAL_VIDEO_MODEL) {
       // Detect video dimensions
       const video = document.createElement('video');
       video.onloadedmetadata = () => {
@@ -152,33 +152,29 @@ export const CanvasNode: React.FC<CanvasNodeProps> = ({
   // ============================================================================
 
   const getAspectRatioStyle = () => {
-    // When there's a successful result, ALWAYS use the result's aspect ratio (lock the node size)
-    // This prevents the node from resizing when user selects a different ratio for regeneration
+    const ratio = data.aspectRatio || 'Auto';
+    const normalizedRatio = ratio !== 'Auto' && ratio.includes(':')
+      ? ratio.replace(':', '/')
+      : undefined;
+
+    // When there's a successful result, lock to result ratio when available.
+    // If legacy data misses resultAspectRatio, fall back to selected aspectRatio first.
     if (isSuccess && data.resultUrl) {
-      // Use stored result aspect ratio if available
       if (data.resultAspectRatio) {
         return { aspectRatio: data.resultAspectRatio };
       }
-      // If no stored ratio, use default (shouldn't happen for new content, but handles legacy)
-      if (data.type === NodeType.VIDEO) {
-        return { aspectRatio: '16/9' };
+      if (normalizedRatio) {
+        return { aspectRatio: normalizedRatio };
       }
-      // Keep current shape for images without stored ratio (legacy)
-      return { aspectRatio: '1/1' };
-    }
-
-    // Video nodes without result - use default 16:9
-    if (data.type === NodeType.VIDEO) {
       return { aspectRatio: '16/9' };
     }
 
-    // Image nodes without result - use the selected aspect ratio for preview
-    const ratio = data.aspectRatio || 'Auto';
-    // Auto defaults to 16:9 for video-ready format
-    if (ratio === 'Auto') return { aspectRatio: '16/9' };
+    // Before result is ready, follow selected aspect ratio so node updates immediately.
+    if (normalizedRatio) {
+      return { aspectRatio: normalizedRatio };
+    }
 
-    const [w, h] = ratio.split(':');
-    return { aspectRatio: `${w}/${h}` };
+    return { aspectRatio: '16/9' };
   };
 
   const handleTitleSave = () => {
