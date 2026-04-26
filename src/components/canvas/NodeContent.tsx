@@ -261,13 +261,15 @@ export const NodeContent: React.FC<NodeContentProps> = ({
                             )}
 
                             <div className="text-neutral-700">
-                                {isVideoType ? (
+                                {isAudioType ? (
+                                    <Music size={40} />
+                                ) : isVideoType ? (
                                     isLocalModel ? <><Film size={40} /><HardDrive size={16} className="absolute -bottom-1 -right-1 text-purple-400" /></> : <Film size={40} />
                                 ) : (
                                     isLocalModel ? <><ImageIcon size={40} /><HardDrive size={16} className="absolute -bottom-1 -right-1 text-purple-400" /></> : <ImageIcon size={40} />
                                 )}
                             </div>
-                            {selected && (
+                            {selected && !isAudioType && (
                                 <>
                                     <div className="text-neutral-500 text-sm font-medium">
                                         {isVideoType && inputUrl
