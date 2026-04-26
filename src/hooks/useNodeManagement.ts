@@ -19,8 +19,7 @@ export const useNodeManagement = () => {
     const getTypeDefaults = (type: NodeType): Partial<NodeData> => {
         if (type === NodeType.AUDIO) {
             return {
-                audioModel: 'gpt-4o-mini-tts',
-                audioFormat: 'mp3'
+                audioModel: 'comfy-audio-tts'
             };
         }
         return {};

@@ -95,6 +95,9 @@ function detectAssetKind(item) {
     if (/\.(png|jpg|jpeg|webp|bmp|svg)(\?|$)/.test(text) || text.includes('image/')) {
         return 'image';
     }
+    if (/\.(mp3|wav|ogg|flac|m4a)(\?|$)/.test(text) || text.includes('audio/')) {
+        return 'audio';
+    }
     return 'unknown';
 }
 
@@ -142,6 +145,7 @@ function collectOutputAssets(outputs, mode) {
             const kind = detectAssetKind(item);
             if (mode === 'video' && kind === 'image') continue;
             if (mode === 'image' && kind === 'video') continue;
+            if (mode === 'audio' && kind !== 'audio') continue;
 
             seen.add(key);
             assets.push(item);
@@ -179,6 +183,9 @@ function detectFileExtension(asset, contentType, fallback) {
         if (contentType.includes('image/webp')) return 'webp';
         if (contentType.includes('video/mp4')) return 'mp4';
         if (contentType.includes('video/webm')) return 'webm';
+        if (contentType.includes('audio/mpeg') || contentType.includes('audio/mp3')) return 'mp3';
+        if (contentType.includes('audio/wav')) return 'wav';
+        if (contentType.includes('audio/ogg')) return 'ogg';
     }
 
     return fallback;
@@ -643,4 +650,61 @@ export async function generateComfyVideo({
         mode: 'video', workflowId, inputs,
         baseUrl, apiKey, timeoutMs: effectiveTimeout, pollIntervalMs: effectivePoll
     });
+}
+
+export async function generateComfyAudio({
+    prompt,
+    voiceReferenceUrl,
+    workflowFile,
+    workflowPreprocessor,
+    nodeId,
+    baseUrl,
+    apiKey,
+    timeoutMs,
+    pollIntervalMs,
+}) {
+    if (!workflowFile) {
+        throw new Error('ComfyUI audio workflow not configured');
+    }
+
+    const effectiveTimeout = timeoutMs  || DEFAULT_TIMEOUT_MS;
+    const effectivePoll   = pollIntervalMs || DEFAULT_POLL_INTERVAL_MS;
+
+    // Load workflow JSON
+    const workflow = JSON.parse(JSON.stringify(loadWorkflowTemplate(workflowFile)));
+
+    // Debug: save before
+    const wfShortName = path.basename(workflowFile).replace('.json', '');
+    const debugDir = path.join(process.cwd(), 'server', 'debug');
+    fs.mkdirSync(debugDir, { recursive: true });
+    fs.writeFileSync(path.join(debugDir, `wf_audio_before_${wfShortName}_${Date.now()}.json`), JSON.stringify(workflow, null, 2));
+
+    if (workflowPreprocessor) {
+        const fileUrl = 'file:///' + workflowPreprocessor.replace(/\\/g, '/');
+        const mod = await import(fileUrl);
+        await mod.inject(workflow, {
+            prompt:      prompt || '',
+            voiceReferenceUrl: voiceReferenceUrl || '',
+            nodeId,
+        });
+    }
+
+    fs.writeFileSync(path.join(debugDir, `wf_audio_after_${wfShortName}_${Date.now()}.json`), JSON.stringify(workflow, null, 2));
+
+    const promptId = await submitComfyWorkflow({
+        baseUrl, apiKey, workflow, timeoutMs: effectiveTimeout
+    });
+
+    const outputs = await pollComfyHistory({
+        baseUrl, apiKey, promptId,
+        timeoutMs: effectiveTimeout, pollIntervalMs: effectivePoll
+    });
+
+    const assets = collectOutputAssets(outputs, 'audio');
+    if (assets.length === 0) throw new Error('ComfyUI returned no audio output');
+
+    const { buffer, ext } = await downloadComfyAsset({
+        baseUrl, apiKey, asset: assets[0], fallbackExt: 'mp3'
+    });
+    return { audioBuffer: buffer, audioFormat: ext };
 }

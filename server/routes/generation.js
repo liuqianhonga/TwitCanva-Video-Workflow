@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 import { generateKlingVideo, generateKlingImage, generateKlingMultiImage } from '../services/kling.js';
 import { generateGeminiImage, generateVeoVideo } from '../services/gemini.js';
 import { generateHailuoVideo } from '../services/hailuo.js';
-import { generateOpenAIImage, generateOpenAIAudio } from '../services/openai.js';
+import { generateOpenAIImage } from '../services/openai.js';
 import { generateComfyImage, generateComfyVideo } from '../services/comfyui.js';
 import COMFY_WORKFLOWS from '../config/comfy-workflows.js';
 import { resolveImageToBase64, saveBufferToFile } from '../utils/imageHelpers.js';
@@ -561,32 +561,40 @@ router.get('/generation-status/:nodeId', async (req, res) => {
 
 router.post('/generate-audio', async (req, res) => {
     try {
-        const { nodeId, prompt, audioModel, voiceReferenceUrl, audioFormat } = req.body;
-        const { OPENAI_API_KEY, AUDIOS_DIR } = req.app.locals;
+        const { nodeId, prompt, voiceReferenceUrl } = req.body;
+        const { COMFYUI_BASE_URL, COMFYUI_API_KEY, COMFY_WORKFLOWS, AUDIOS_DIR } = req.app.locals;
 
         if (!prompt || !prompt.trim()) {
             return res.status(400).json({ error: 'Prompt is required for audio generation.' });
         }
 
-        if (!OPENAI_API_KEY) {
-            return res.status(500).json({ error: 'OpenAI API key is not configured.' });
+        if (!COMFYUI_BASE_URL) {
+            return res.status(500).json({ error: 'ComfyUI base URL not configured. Add COMFYUI_BASE_URL to .env' });
         }
 
-        const { generateOpenAIAudio } = await import('../services/openai.js');
+        const workflowKey = 'comfy-audio-tts';
+        const workflowEntry = COMFY_WORKFLOWS?.[workflowKey];
 
-        const audioBuffer = await generateOpenAIAudio({
+        if (!workflowEntry) {
+            return res.status(500).json({ error: `ComfyUI audio workflow "${workflowKey}" not found in registry.` });
+        }
+
+        const { generateComfyAudio } = await import('../services/comfyui.js');
+
+        const { audioBuffer, audioFormat } = await generateComfyAudio({
             prompt,
-            audioModel: audioModel || 'gpt-4o-mini-tts',
             voiceReferenceUrl,
-            audioFormat: audioFormat || 'mp3',
-            apiKey: OPENAI_API_KEY
+            workflowFile:    workflowEntry.json,
+            workflowPreprocessor: workflowEntry.module,
+            nodeId,
+            baseUrl: COMFYUI_BASE_URL,
+            apiKey:  COMFYUI_API_KEY,
         });
 
-        const extension = audioFormat === 'wav' ? 'wav' : 'mp3';
-        const { filename } = await saveBufferToFile(audioBuffer, AUDIOS_DIR, 'audio', extension, nodeId);
+        const { filename } = await saveBufferToFile(audioBuffer, AUDIOS_DIR, 'audio', audioFormat, nodeId);
 
         const resultUrl = `/library/audios/${filename}`;
-        console.log(`[Audio] Generated: ${resultUrl}`);
+        console.log(`[Audio] Generated via ComfyUI: ${resultUrl}`);
 
         res.json({ resultUrl });
 

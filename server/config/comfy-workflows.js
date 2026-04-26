@@ -50,6 +50,12 @@ const COMFY_WORKFLOWS = {
         json:   path.join(WORKFLOWS_DIR, 'ltx-2-3-i2v.json'),
         module: path.join(WORKFLOWS_DIR, 'ltx-2-3-i2v.js'),
     },
+
+    // ── Fish Audio TTS ──────────────────────────────────────────────────────
+    'comfy-audio-tts': {
+        json:   path.join(WORKFLOWS_DIR, 'fish-audio-tts.json'),
+        module: path.join(WORKFLOWS_DIR, 'fish-audio-tts.js'),
+    },
 };
 
 export default COMFY_WORKFLOWS;

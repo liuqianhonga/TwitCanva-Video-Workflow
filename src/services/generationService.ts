@@ -100,7 +100,6 @@ export interface GenerateAudioParams {
   prompt: string;
   audioModel?: string;
   voiceReferenceUrl?: string;
-  audioFormat?: 'mp3' | 'wav';
   nodeId?: string;
 }
 

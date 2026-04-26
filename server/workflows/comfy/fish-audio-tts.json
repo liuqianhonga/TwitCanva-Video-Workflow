@@ -1,0 +1,31 @@
+{
+  "3": {
+    "inputs": {
+      "text": ""
+    },
+    "class_type": "TextNode",
+    "_meta": {
+      "title": "$prompt.text!"
+    }
+  },
+  "4": {
+    "inputs": {
+      "model_name": "FISH-AUDIO/tortoise-medium",
+      "reference_audio": "",
+      "text": ""
+    },
+    "class_type": "FishAudioTTS",
+    "_meta": {
+      "title": "Fish Audio TTS"
+    }
+  },
+  "5": {
+    "inputs": {
+      "audio": []
+    },
+    "class_type": "SaveAudio",
+    "_meta": {
+      "title": "保存音频"
+    }
+  }
+}

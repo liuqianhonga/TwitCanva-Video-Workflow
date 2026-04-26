@@ -372,7 +372,6 @@ export const useGeneration = ({ nodes, updateNode }: UseGenerationProps) => {
                     prompt: combinedPrompt,
                     audioModel: node.audioModel,
                     voiceReferenceUrl: node.voiceReferenceUrl,
-                    audioFormat: node.audioFormat,
                     nodeId: id
                 });
 

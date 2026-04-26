@@ -123,13 +123,10 @@ const IMAGE_MODELS = [
     },
 ];
 
-// Audio model versions
+// Audio model versions (ComfyUI)
 const AUDIO_MODELS = [
-    { id: 'gpt-4o-mini-tts', name: 'GPT-4o Mini TTS', provider: 'openai' },
-    { id: 'gpt-4o-tts', name: 'GPT-4o TTS', provider: 'openai' },
+    { id: 'comfy-audio-tts', name: 'Fish Audio TTS', provider: 'comfy' },
 ];
-
-const AUDIO_FORMATS = ['mp3', 'wav'];
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -742,8 +739,8 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
                                     onClick={() => setShowModelDropdown(!showModelDropdown)}
                                     className="flex items-center gap-1.5 text-xs font-medium bg-[#252525] hover:bg-[#333] border border-neutral-700 text-white px-2.5 py-1.5 rounded-lg transition-colors"
                                 >
-                                    <Music size={12} className="text-pink-400" />
-                                    <span className="font-medium">{AUDIO_MODELS.find(m => m.id === data.audioModel)?.name || 'Select Model'}</span>
+                                    <HardDrive size={12} className="text-purple-400" />
+                                    <span className="font-medium">{AUDIO_MODELS.find(m => m.id === data.audioModel)?.name || 'Fish Audio TTS'}</span>
                                     <ChevronDown size={12} className="ml-0.5 opacity-50" />
                                 </button>
                                 {showModelDropdown && (
@@ -755,9 +752,9 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
                                                     onUpdate(data.id, { audioModel: model.id });
                                                     setShowModelDropdown(false);
                                                 }}
-                                                className={`w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-[#333] transition-colors ${data.audioModel === model.id ? 'text-pink-400' : 'text-neutral-300'}`}
+                                                className={`w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-[#333] transition-colors ${data.audioModel === model.id ? 'text-purple-400' : 'text-neutral-300'}`}
                                             >
-                                                <Music size={12} className="text-pink-400" />
+                                                <HardDrive size={12} className="text-purple-400" />
                                                 {model.name}
                                                 {data.audioModel === model.id && <Check size={12} className="ml-auto" />}
                                             </button>
@@ -1039,23 +1036,11 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
                     <div className="flex items-center gap-2">
                         {data.type === NodeType.AUDIO && (
                             <>
-                                {/* Audio Format Selector */}
-                                <div className="flex items-center gap-1">
-                                    {AUDIO_FORMATS.map(fmt => (
-                                        <button
-                                            key={fmt}
-                                            onClick={() => onUpdate(data.id, { audioFormat: fmt })}
-                                            className={`px-2 py-1 text-xs rounded transition-colors ${data.audioFormat === fmt ? 'bg-pink-600 text-white' : 'bg-[#252525] text-neutral-400 hover:text-white border border-neutral-700'}`}
-                                        >
-                                            {fmt.toUpperCase()}
-                                        </button>
-                                    ))}
-                                </div>
                                 {/* Voice Reference Upload */}
                                 {data.voiceReferenceUrl ? (
-                                    <div className="flex items-center gap-1 px-2 py-1 bg-neutral-800/80 rounded-lg border border-pink-600/40">
-                                        <Music size={12} className="text-pink-400" />
-                                        <span className="text-xs text-pink-300 max-w-[80px] truncate">{data.voiceReferenceUrl.split('/').pop()}</span>
+                                    <div className="flex items-center gap-1 px-2 py-1 bg-neutral-800/80 rounded-lg border border-purple-600/40">
+                                        <Music size={12} className="text-purple-400" />
+                                        <span className="text-xs text-purple-300 max-w-[80px] truncate">{data.voiceReferenceUrl.split('/').pop()}</span>
                                         <button
                                             onClick={() => onUpdate(data.id, { voiceReferenceUrl: undefined })}
                                             className="text-neutral-400 hover:text-white"
