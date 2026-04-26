@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useRef, useEffect, memo } from 'react';
-import { Sparkles, Banana, Settings2, Check, ChevronDown, ChevronUp, GripVertical, Image as ImageIcon, Film, Clock, Expand, Shrink, Monitor, Crop, HardDrive } from 'lucide-react';
+import { Sparkles, Banana, Settings2, Check, ChevronDown, ChevronUp, GripVertical, Image as ImageIcon, Film, Clock, Expand, Shrink, Monitor, Crop, HardDrive, Upload, Music, X } from 'lucide-react';
 import { NodeData, NodeStatus, NodeType } from '../../types';
 import { OpenAIIcon, GoogleIcon, KlingIcon, HailuoIcon } from '../icons/BrandIcons';
 import { useFaceDetection } from '../../hooks/useFaceDetection';
@@ -122,6 +122,14 @@ const IMAGE_MODELS = [
         aspectRatios: ["Auto", "1:1", "9:16", "16:9", "3:4", "4:3", "3:2", "2:3", "21:9"]
     },
 ];
+
+// Audio model versions
+const AUDIO_MODELS = [
+    { id: 'gpt-4o-mini-tts', name: 'GPT-4o Mini TTS', provider: 'openai' },
+    { id: 'gpt-4o-tts', name: 'GPT-4o TTS', provider: 'openai' },
+];
+
+const AUDIO_FORMATS = ['mp3', 'wav'];
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -728,6 +736,35 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
                                     </div>
                                 )}
                             </div>
+                        ) : data.type === NodeType.AUDIO ? (
+                            <div className="relative" ref={modelDropdownRef}>
+                                <button
+                                    onClick={() => setShowModelDropdown(!showModelDropdown)}
+                                    className="flex items-center gap-1.5 text-xs font-medium bg-[#252525] hover:bg-[#333] border border-neutral-700 text-white px-2.5 py-1.5 rounded-lg transition-colors"
+                                >
+                                    <Music size={12} className="text-pink-400" />
+                                    <span className="font-medium">{AUDIO_MODELS.find(m => m.id === data.audioModel)?.name || 'Select Model'}</span>
+                                    <ChevronDown size={12} className="ml-0.5 opacity-50" />
+                                </button>
+                                {showModelDropdown && (
+                                    <div className="absolute top-full mt-1 left-0 w-48 bg-[#252525] border border-neutral-700 rounded-lg shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
+                                        {AUDIO_MODELS.map(model => (
+                                            <button
+                                                key={model.id}
+                                                onClick={() => {
+                                                    onUpdate(data.id, { audioModel: model.id });
+                                                    setShowModelDropdown(false);
+                                                }}
+                                                className={`w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-[#333] transition-colors ${data.audioModel === model.id ? 'text-pink-400' : 'text-neutral-300'}`}
+                                            >
+                                                <Music size={12} className="text-pink-400" />
+                                                {model.name}
+                                                {data.audioModel === model.id && <Check size={12} className="ml-auto" />}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         ) : data.type === NodeType.VIDEO ? (
                             <div className="relative" ref={modelDropdownRef}>
                                 <button
@@ -1000,6 +1037,65 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
+                        {data.type === NodeType.AUDIO && (
+                            <>
+                                {/* Audio Format Selector */}
+                                <div className="flex items-center gap-1">
+                                    {AUDIO_FORMATS.map(fmt => (
+                                        <button
+                                            key={fmt}
+                                            onClick={() => onUpdate(data.id, { audioFormat: fmt })}
+                                            className={`px-2 py-1 text-xs rounded transition-colors ${data.audioFormat === fmt ? 'bg-pink-600 text-white' : 'bg-[#252525] text-neutral-400 hover:text-white border border-neutral-700'}`}
+                                        >
+                                            {fmt.toUpperCase()}
+                                        </button>
+                                    ))}
+                                </div>
+                                {/* Voice Reference Upload */}
+                                {data.voiceReferenceUrl ? (
+                                    <div className="flex items-center gap-1 px-2 py-1 bg-neutral-800/80 rounded-lg border border-pink-600/40">
+                                        <Music size={12} className="text-pink-400" />
+                                        <span className="text-xs text-pink-300 max-w-[80px] truncate">{data.voiceReferenceUrl.split('/').pop()}</span>
+                                        <button
+                                            onClick={() => onUpdate(data.id, { voiceReferenceUrl: undefined })}
+                                            className="text-neutral-400 hover:text-white"
+                                        >
+                                            <X size={10} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            const input = document.createElement('input');
+                                            input.type = 'file';
+                                            input.accept = 'audio/*';
+                                            input.onchange = async (e) => {
+                                                const file = (e.target as HTMLInputElement).files?.[0];
+                                                if (!file) return;
+                                                const reader = new FileReader();
+                                                reader.onload = () => {
+                                                    fetch('/api/assets/audios', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ data: reader.result, prompt: 'voice_reference' })
+                                                    }).then(res => res.json()).then(data => {
+                                                        if (data.url) onUpdate(data.id, { voiceReferenceUrl: data.url });
+                                                    }).catch(err => console.error('Voice upload failed:', err));
+                                                };
+                                                reader.readAsDataURL(file);
+                                            };
+                                            input.click();
+                                        }}
+                                        className="flex items-center gap-1 px-2 py-1 bg-neutral-800/80 hover:bg-neutral-700 rounded-lg border border-neutral-700 text-neutral-400 hover:text-white text-xs transition-colors"
+                                        title="Upload voice reference (optional)"
+                                    >
+                                        <Upload size={11} />
+                                        <span>Voice Ref</span>
+                                    </button>
+                                )}
+                            </>
+                        )}
+
                         {/* Unified Size/Ratio Dropdown (hidden for video nodes in motion-control mode) */}
                         {!(isVideoNode && videoGenerationMode === 'motion-control') && (
                             <div className="relative" ref={dropdownRef}>

@@ -38,6 +38,11 @@ export interface NodeData {
   textMode?: 'menu' | 'editing'; // For Text nodes: current mode
   linkedVideoNodeId?: string; // For Text nodes: linked video node for prompt sync
 
+  // Audio node specific
+  audioModel?: string; // Audio model version (e.g., 'gpt-4o-mini-tts')
+  voiceReferenceUrl?: string; // Optional reference voice audio URL
+  audioFormat?: 'mp3' | 'wav'; // Output audio format
+
   // Video node specific
   videoMode?: 'standard' | 'frame-to-frame' | 'motion-control'; // Video generation mode
   frameInputs?: { nodeId: string; order: 'start' | 'end' }[]; // For frame-to-frame: connected image nodes

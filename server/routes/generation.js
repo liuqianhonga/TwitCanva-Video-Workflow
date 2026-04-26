@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 import { generateKlingVideo, generateKlingImage, generateKlingMultiImage } from '../services/kling.js';
 import { generateGeminiImage, generateVeoVideo } from '../services/gemini.js';
 import { generateHailuoVideo } from '../services/hailuo.js';
-import { generateOpenAIImage } from '../services/openai.js';
+import { generateOpenAIImage, generateOpenAIAudio } from '../services/openai.js';
 import { generateComfyImage, generateComfyVideo } from '../services/comfyui.js';
 import COMFY_WORKFLOWS from '../config/comfy-workflows.js';
 import { resolveImageToBase64, saveBufferToFile } from '../utils/imageHelpers.js';
@@ -525,7 +525,7 @@ router.post('/generate-video', async (req, res) => {
 router.get('/generation-status/:nodeId', async (req, res) => {
     try {
         const { nodeId } = req.params;
-        const { IMAGES_DIR, VIDEOS_DIR } = req.app.locals;
+        const { IMAGES_DIR, VIDEOS_DIR, AUDIOS_DIR } = req.app.locals;
 
         // Check images metadata
         const imageMetaPath = path.join(IMAGES_DIR, `${nodeId}.json`);
@@ -541,9 +541,57 @@ router.get('/generation-status/:nodeId', async (req, res) => {
             return res.json({ status: 'success', resultUrl: `/library/videos/${meta.filename}`, type: 'video', createdAt: meta.createdAt });
         }
 
+        // Check audios metadata
+        const audioMetaPath = path.join(AUDIOS_DIR, `${nodeId}.json`);
+        if (fs.existsSync(audioMetaPath)) {
+            const meta = JSON.parse(fs.readFileSync(audioMetaPath, 'utf8'));
+            return res.json({ status: 'success', resultUrl: `/library/audios/${meta.filename}`, type: 'audio', createdAt: meta.createdAt });
+        }
+
         res.json({ status: 'pending' });
     } catch (error) {
         console.error("Status Check Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================================================
+// AUDIO GENERATION
+// ============================================================================
+
+router.post('/generate-audio', async (req, res) => {
+    try {
+        const { nodeId, prompt, audioModel, voiceReferenceUrl, audioFormat } = req.body;
+        const { OPENAI_API_KEY, AUDIOS_DIR } = req.app.locals;
+
+        if (!prompt || !prompt.trim()) {
+            return res.status(400).json({ error: 'Prompt is required for audio generation.' });
+        }
+
+        if (!OPENAI_API_KEY) {
+            return res.status(500).json({ error: 'OpenAI API key is not configured.' });
+        }
+
+        const { generateOpenAIAudio } = await import('../services/openai.js');
+
+        const audioBuffer = await generateOpenAIAudio({
+            prompt,
+            audioModel: audioModel || 'gpt-4o-mini-tts',
+            voiceReferenceUrl,
+            audioFormat: audioFormat || 'mp3',
+            apiKey: OPENAI_API_KEY
+        });
+
+        const extension = audioFormat === 'wav' ? 'wav' : 'mp3';
+        const { filename } = await saveBufferToFile(audioBuffer, AUDIOS_DIR, 'audio', extension, nodeId);
+
+        const resultUrl = `/library/audios/${filename}`;
+        console.log(`[Audio] Generated: ${resultUrl}`);
+
+        res.json({ resultUrl });
+
+    } catch (error) {
+        console.error('[Audio] Generation error:', error);
         res.status(500).json({ error: error.message });
     }
 });

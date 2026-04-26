@@ -16,6 +16,16 @@ export const useNodeManagement = () => {
     const [nodes, setNodes] = useState<NodeData[]>([]);
     const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
 
+    const getTypeDefaults = (type: NodeType): Partial<NodeData> => {
+        if (type === NodeType.AUDIO) {
+            return {
+                audioModel: 'gpt-4o-mini-tts',
+                audioFormat: 'mp3'
+            };
+        }
+        return {};
+    };
+
     // ============================================================================
     // NODE OPERATIONS
     // ============================================================================
@@ -48,7 +58,8 @@ export const useNodeManagement = () => {
             model: 'Banana Pro',
             aspectRatio: 'Auto',
             resolution: 'Auto',
-            parentIds: parentId ? [parentId] : []
+            parentIds: parentId ? [parentId] : [],
+            ...getTypeDefaults(type)
         };
 
         setNodes(prev => [...prev, newNode]);
@@ -132,7 +143,8 @@ export const useNodeManagement = () => {
                         model: 'Banana Pro',
                         aspectRatio: 'Auto',
                         resolution: 'Auto',
-                        parentIds: contextMenu.sourceNodeId ? [contextMenu.sourceNodeId] : []
+                        parentIds: contextMenu.sourceNodeId ? [contextMenu.sourceNodeId] : [],
+                        ...getTypeDefaults(type)
                     };
                 } else {
                     // Prepend: New -> Source
@@ -146,7 +158,8 @@ export const useNodeManagement = () => {
                         model: 'Banana Pro',
                         aspectRatio: 'Auto',
                         resolution: 'Auto',
-                        parentIds: []
+                        parentIds: [],
+                        ...getTypeDefaults(type)
                     };
                     // Update source to add new node as parent
                     const existingParentIds = sourceNode.parentIds || [];

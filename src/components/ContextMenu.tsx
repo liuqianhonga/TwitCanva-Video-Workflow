@@ -15,7 +15,8 @@ import {
   Files,
   Layers,
   ChevronRight,
-  HardDrive
+  HardDrive,
+  Music
 } from 'lucide-react';
 import { ContextMenuState, NodeType } from '../types';
 import { useI18n } from '../i18n/I18nProvider';
@@ -302,6 +303,12 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
           icon={<Video size={18} />}
           label={isConnector ? t('context.videoGeneration') : t('context.video')}
           onClick={() => onSelectType(NodeType.VIDEO)}
+          canvasTheme={canvasTheme}
+        />
+        <MenuItem
+          icon={<Music size={18} />}
+          label={isConnector ? t('context.audioGeneration') : t('context.audio')}
+          onClick={() => onSelectType(NodeType.AUDIO)}
           canvasTheme={canvasTheme}
         />
 

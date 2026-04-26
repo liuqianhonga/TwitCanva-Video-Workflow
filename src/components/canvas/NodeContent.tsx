@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Loader2, Maximize2, ImageIcon as ImageIcon, Film, Upload, Pencil, Video, GripVertical, Download, Expand, Shrink, HardDrive } from 'lucide-react';
+import { Loader2, Maximize2, ImageIcon as ImageIcon, Film, Upload, Pencil, Video, GripVertical, Download, Expand, Shrink, HardDrive, Music } from 'lucide-react';
 import { NodeData, NodeStatus, NodeType } from '../../types';
 
 interface NodeContentProps {
@@ -62,10 +62,12 @@ export const NodeContent: React.FC<NodeContentProps> = ({
 
     // Helper: Check if node is image-type (includes local image model)
     const isImageType = data.type === NodeType.IMAGE || data.type === NodeType.LOCAL_IMAGE_MODEL;
-    // Helper: Check if node is video-type (includes local video model)
+    // Helper: Check if node is video-type
     const isVideoType = data.type === NodeType.VIDEO || data.type === NodeType.LOCAL_VIDEO_MODEL;
-    // Helper: Check if node is local model
+    // Helper: Check if node is local model type
     const isLocalModel = data.type === NodeType.LOCAL_IMAGE_MODEL || data.type === NodeType.LOCAL_VIDEO_MODEL;
+    // Helper: Check if node is audio-type
+    const isAudioType = data.type === NodeType.AUDIO;
 
     // Sync local state ONLY when data.prompt changes externally (not from our own update)
     useEffect(() => {
@@ -129,6 +131,8 @@ export const NodeContent: React.FC<NodeContentProps> = ({
                 >
                     {isVideoType ? (
                         <video src={data.resultUrl} controls loop className="w-full h-full object-cover" />
+                    ) : isAudioType ? (
+                        <audio src={data.resultUrl} controls className="w-full" />
                     ) : (
                         <img src={data.resultUrl} alt="Generated" className="w-full h-full object-cover pointer-events-none" />
                     )}

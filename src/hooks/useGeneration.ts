@@ -6,7 +6,7 @@
  */
 
 import { NodeData, NodeType, NodeStatus } from '../types';
-import { generateImage, generateVideo } from '../services/generationService';
+import { generateImage, generateVideo, generateAudio } from '../services/generationService';
 import { generateLocalImage } from '../services/localModelService';
 import { extractVideoLastFrame } from '../utils/videoHelpers';
 
@@ -361,7 +361,27 @@ export const useGeneration = ({ nodes, updateNode }: UseGenerationProps) => {
                     errorMessage: undefined // Clear any previous error
                 });
 
+            } else if (node.type === NodeType.AUDIO) {
+                // Audio generation - prompt required
+                if (!combinedPrompt) {
+                    updateNode(id, { status: NodeStatus.ERROR, errorMessage: 'Prompt is required for audio generation.' });
+                    return;
+                }
 
+                const rawResultUrl = await generateAudio({
+                    prompt: combinedPrompt,
+                    audioModel: node.audioModel,
+                    voiceReferenceUrl: node.voiceReferenceUrl,
+                    audioFormat: node.audioFormat,
+                    nodeId: id
+                });
+
+                const resultUrl = `${rawResultUrl}?t=${Date.now()}`;
+                updateNode(id, {
+                    status: NodeStatus.SUCCESS,
+                    resultUrl,
+                    errorMessage: undefined
+                });
             }
         } catch (error: any) {
             // Handle errors

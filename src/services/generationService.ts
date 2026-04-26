@@ -91,3 +91,40 @@ export const generateVideo = async (params: GenerateVideoParams): Promise<string
     throw error;
   }
 };
+
+// ============================================================================
+// AUDIO GENERATION
+// ============================================================================
+
+export interface GenerateAudioParams {
+  prompt: string;
+  audioModel?: string;
+  voiceReferenceUrl?: string;
+  audioFormat?: 'mp3' | 'wav';
+  nodeId?: string;
+}
+
+export const generateAudio = async (params: GenerateAudioParams): Promise<string> => {
+  try {
+    const response = await fetch('/api/generate-audio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || response.statusText);
+    }
+
+    const data = await response.json();
+    if (!data.resultUrl) {
+      throw new Error("No audio data returned from server");
+    }
+    return data.resultUrl;
+
+  } catch (error) {
+    console.error("Audio Generation Error:", error);
+    throw error;
+  }
+};

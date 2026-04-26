@@ -128,7 +128,7 @@ export const useConnectionDragging = () => {
          * - TEXT → IMAGE, VIDEO: ✅ (text provides prompt)
          * - TEXT → TEXT, IMAGE_EDITOR: ❌ (no text chaining, no text editing)
          * - Any → TEXT: ❌ (text nodes can't receive input)
-         * - AUDIO: ❌ (not supported yet)
+         * - AUDIO: parent can be TEXT/IMAGE/VIDEO/IMAGE_EDITOR; child can receive TEXT/IMAGE/VIDEO/IMAGE_EDITOR
          */
         const isValidConnection = (parentId: string, childId: string): boolean => {
             const parentNode = nodes.find(n => n.id === parentId);
@@ -136,8 +136,16 @@ export const useConnectionDragging = () => {
 
             if (!parentNode || !childNode) return false;
 
-            // AUDIO nodes not supported yet
-            if (parentNode.type === NodeType.AUDIO || childNode.type === NodeType.AUDIO) {
+            // AUDIO nodes support prompt + optional reference from existing sources
+            if (childNode.type === NodeType.AUDIO) {
+                return parentNode.type === NodeType.TEXT ||
+                    parentNode.type === NodeType.IMAGE ||
+                    parentNode.type === NodeType.VIDEO ||
+                    parentNode.type === NodeType.IMAGE_EDITOR;
+            }
+
+            // AUDIO nodes cannot be parent outputs
+            if (parentNode.type === NodeType.AUDIO) {
                 return false;
             }
 

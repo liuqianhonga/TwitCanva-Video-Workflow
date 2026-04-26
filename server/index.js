@@ -29,11 +29,12 @@ const LIBRARY_DIR = path.join(__dirname, '..', 'library');
 const WORKFLOWS_DIR = path.join(LIBRARY_DIR, 'workflows');
 const IMAGES_DIR = path.join(LIBRARY_DIR, 'images');
 const VIDEOS_DIR = path.join(LIBRARY_DIR, 'videos');
+const AUDIOS_DIR = path.join(LIBRARY_DIR, 'audios');
 const CHATS_DIR = path.join(LIBRARY_DIR, 'chats');
 const LIBRARY_ASSETS_DIR = path.join(LIBRARY_DIR, 'assets');
 const COMFYUI_INPUT_DIR = path.join(__dirname, '..', 'comfyui_input');
 
-[LIBRARY_DIR, WORKFLOWS_DIR, IMAGES_DIR, VIDEOS_DIR, CHATS_DIR, LIBRARY_ASSETS_DIR, COMFYUI_INPUT_DIR].forEach(dir => {
+[LIBRARY_DIR, WORKFLOWS_DIR, IMAGES_DIR, VIDEOS_DIR, AUDIOS_DIR, CHATS_DIR, LIBRARY_ASSETS_DIR, COMFYUI_INPUT_DIR].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
@@ -142,6 +143,7 @@ app.locals.COMFYUI_TIMEOUT_MS = COMFYUI_TIMEOUT_MS;
 app.locals.COMFYUI_POLL_INTERVAL_MS = COMFYUI_POLL_INTERVAL_MS;
 app.locals.IMAGES_DIR = IMAGES_DIR;
 app.locals.VIDEOS_DIR = VIDEOS_DIR;
+app.locals.AUDIOS_DIR = AUDIOS_DIR;
 app.locals.LIBRARY_DIR = LIBRARY_DIR;
 
 // ============================================================================
@@ -834,7 +836,7 @@ app.post('/api/assets/:type', async (req, res) => {
         const { type } = req.params;
         const { data, prompt } = req.body;
 
-        if (!['images', 'videos'].includes(type)) {
+        if (!['images', 'videos', 'audios'].includes(type)) {
             return res.status(400).json({ error: 'Invalid asset type' });
         }
 
@@ -872,7 +874,7 @@ app.get('/api/assets/:type', async (req, res) => {
         const limit = parseInt(req.query.limit) || 0; // 0 = no limit (backward compatible)
         const offset = parseInt(req.query.offset) || 0;
 
-        if (!['images', 'videos'].includes(type)) {
+        if (!['images', 'videos', 'audios'].includes(type)) {
             return res.status(400).json({ error: 'Invalid asset type' });
         }
 
@@ -925,7 +927,7 @@ app.delete('/api/assets/:type/:id', async (req, res) => {
     try {
         const { type, id } = req.params;
 
-        if (!['images', 'videos'].includes(type)) {
+        if (!['images', 'videos', 'audios'].includes(type)) {
             return res.status(400).json({ error: 'Invalid asset type' });
         }
 
