@@ -120,14 +120,13 @@ export async function generateOpenAIAudio({ prompt, audioModel, voiceReferenceUr
             const refFile = await toFile(audioBuffer, 'voice_reference.mp3', { type: 'audio/mpeg' });
 
             // Use the file as a voice reference (OpenAI TTS voice cloning)
-            options.voice = ' reciting ' as any; // Placeholder; OpenAI SDK uses `voice` field with preset
             // Note: True voice cloning requires OpenAI's custom voice feature
             // Fall back to default voice with a log warning
             console.warn('[OpenAI] Voice reference provided but OpenAI TTS does not support custom voice cloning via API. Using default voice.');
             delete options.voice;
 
             // Store reference for potential future use via OpenAI's voice API
-            (options as any).audioFile = refFile;
+            options.audioFile = refFile;
         } catch (err) {
             console.error('[OpenAI] Failed to load voice reference, using default voice:', err);
         }
