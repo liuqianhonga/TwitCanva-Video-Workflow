@@ -1096,8 +1096,8 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
                             </>
                         )}
 
-                        {/* Unified Size/Ratio Dropdown (hidden for video nodes in motion-control mode) */}
-                        {!(isVideoNode && videoGenerationMode === 'motion-control') && (
+                        {/* Unified Size/Ratio Dropdown (hidden for video nodes in motion-control mode, hidden for audio nodes) */}
+                        {data.type !== NodeType.AUDIO && !(isVideoNode && videoGenerationMode === 'motion-control') && (
                             <div className="relative" ref={dropdownRef}>
                                 <button
                                     onClick={() => setShowSizeDropdown(!showSizeDropdown)}
@@ -1133,8 +1133,8 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
                             </div>
                         )}
 
-                        {/* Image Resolution Dropdown - Only for Image nodes */}
-                        {!isVideoNode && (currentImageModel as any).resolutions && (
+                        {/* Image Resolution Dropdown - Only for Image/IMAGE_EDITOR nodes */}
+                        {!isVideoNode && data.type !== NodeType.AUDIO && (currentImageModel as any).resolutions && (
                             <div className="relative" ref={resolutionDropdownRef}>
                                 <button
                                     onClick={() => setShowResolutionDropdown(!showResolutionDropdown)}
