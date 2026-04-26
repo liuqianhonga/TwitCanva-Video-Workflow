@@ -1,92 +1,101 @@
 {
-  "98": {
+  "75": {
     "inputs": {
-      "steps": 20,
-      "max_shift": 2.05,
-      "base_shift": 0.95,
-      "stretch": true,
-      "terminal": 0.1,
-      "latent": [
-        "109",
+      "filename_prefix": "video/LTX_2.3_i2v",
+      "format": "auto",
+      "codec": "auto",
+      "video-preview": "",
+      "video": [
+        "320:310",
         0
       ]
     },
-    "class_type": "LTXVScheduler",
+    "class_type": "SaveVideo",
     "_meta": {
-      "title": "LTXV调度器"
+      "title": "保存视频"
     }
   },
-  "106": {
+  "269": {
     "inputs": {
-      "frames_number": [
-        "112",
-        0
-      ],
-      "frame_rate": [
-        "130",
-        0
-      ],
-      "batch_size": 1,
-      "audio_vae": [
-        "160",
-        0
-      ]
+      "image": "Flux2_Klein_9b_kv_00011_.png"
     },
-    "class_type": "LTXVEmptyLatentAudio",
+    "class_type": "LoadImage",
     "_meta": {
-      "title": "LTXV 空音频潜空间"
+      "title": "$image"
     }
   },
-  "107": {
+  "324": {
     "inputs": {
-      "frame_rate": [
-        "142",
-        0
-      ],
-      "positive": [
-        "121",
-        0
-      ],
-      "negative": [
-        "110",
-        0
-      ]
+      "value": 768
     },
-    "class_type": "LTXVConditioning",
+    "class_type": "Int",
     "_meta": {
-      "title": "LTXV条件"
+      "title": "$width.value"
     }
   },
-  "108": {
+  "325": {
     "inputs": {
-      "width": [
-        "213",
-        0
-      ],
-      "height": [
-        "214",
-        0
-      ],
-      "length": [
-        "112",
-        0
-      ],
-      "batch_size": 1
+      "value": 1344
     },
-    "class_type": "EmptyLTXVLatentVideo",
+    "class_type": "Int",
     "_meta": {
-      "title": "空Latent视频（LTXV）"
+      "title": "$height.value"
     }
   },
-  "109": {
+  "326": {
+    "inputs": {
+      "value": 1344
+    },
+    "class_type": "Int",
+    "_meta": {
+      "title": "$fps.value"
+    }
+  },
+  "327": {
+    "inputs": {
+      "value": 1344
+    },
+    "class_type": "Int",
+    "_meta": {
+      "title": "$duration.value"
+    }
+  },
+  "329": {
+    "inputs": {
+      "value": "Starting from the young woman standing still in the image, she slowly shifts her weight, tilts her head slightly to the right, and blinks softly. Her long black hair sways gently with the subtle movement, and the fabric of her white T-shirt and denim jeans shifts slightly with her breath. The black shoulder bag at her side sways faintly. The camera is a static medium shot with a centered composition, soft diffused daylight casting even light with minimal contrast. The woman then opens her mouth and speaks in a calm, quiet tone: \"（轻声）你好，请问现在几点了？\". Faint background city ambience of distant traffic and soft breeze rustling. The mood is calm and casual, with natural micro-movements throughout the sequence."
+    },
+    "class_type": "PrimitiveStringMultiline",
+    "_meta": {
+      "title": "$prompt"
+    }
+  },
+  "320:276": {
+    "inputs": {
+      "noise_seed": 42
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "随机噪波"
+    }
+  },
+  "320:277": {
+    "inputs": {
+      "noise_seed": 58464342255724
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "随机噪波"
+    }
+  },
+  "320:278": {
     "inputs": {
       "video_latent": [
-        "181",
+        "320:288",
         0
       ],
       "audio_latent": [
-        "106",
-        0
+        "320:307",
+        1
       ]
     },
     "class_type": "LTXVConcatAVLatent",
@@ -94,103 +103,37 @@
       "title": "LTXVConcatAVLatent"
     }
   },
-  "110": {
+  "320:280": {
     "inputs": {
-      "text": "blurry, low quality, still frame, frames, watermark, overlay, titles, has blurbox, has subtitles",
-      "clip": [
-        "161",
-        0
-      ]
+      "sampler_name": "euler_cfg_pp"
     },
-    "class_type": "CLIPTextEncode",
+    "class_type": "KSamplerSelect",
     "_meta": {
-      "title": "CLIP文本编码"
+      "title": "K采样器选择"
     }
   },
-  "112": {
+  "320:281": {
     "inputs": {
-      "value": 150
+      "sigmas": "0.85, 0.7250, 0.4219, 0.0"
     },
-    "class_type": "PrimitiveInt",
+    "class_type": "ManualSigmas",
     "_meta": {
-      "title": "$length.value"
+      "title": "自定义Sigmas"
     }
   },
-  "113": {
+  "320:282": {
     "inputs": {
-      "noise": [
-        "115",
-        0
-      ],
-      "guider": [
-        "128",
-        0
-      ],
-      "sampler": [
-        "135",
-        0
-      ],
-      "sigmas": [
-        "98",
-        0
-      ],
-      "latent_image": [
-        "109",
-        0
-      ]
-    },
-    "class_type": "SamplerCustomAdvanced",
-    "_meta": {
-      "title": "自定义采样器（高级）"
-    }
-  },
-  "115": {
-    "inputs": {
-      "noise_seed": 937803917801523
-    },
-    "class_type": "RandomNoise",
-    "_meta": {
-      "title": "随机噪波"
-    }
-  },
-  "116": {
-    "inputs": {
-      "av_latent": [
-        "113",
-        0
-      ]
-    },
-    "class_type": "LTXVSeparateAVLatent",
-    "_meta": {
-      "title": "LTXV分离音视频潜空间"
-    }
-  },
-  "121": {
-    "inputs": {
-      "text": "Style: cinematic - action - Starting from a crouched position, the black cat explodes forward in a dynamic mid-air pounce from the sofa. Its spine arches like a bow as front paws extend forward with claws slightly visible. Back legs kick off from the sofa cushion while the tail streams behind for balance. Fur ripples along the body from acceleration. The cat's mouth opens slightly letting out a sharp battle cry meow. A loud whoosh sound of air displacement accompanies the leap. The sofa spring creaks loudly from the launch force. Fabric rustles dramatically with rapid movement. Dust particles scatter from the sudden motion. The black cat lands near the white cat, both beginning to tumble together. Side lighting creates strong shadows and rim light outlines the cat's silhouette. Dramatic action music sting hits on the launch moment with low bass impact. A human voice gasps in Mandarin Chinese with surprised tone \"哇！煤球出击了！\" (wa! méi qiú chū jī le - wow! Meiqiu attacks!). Camera: static medium shot at cat eye level, consistent framing.",
-      "clip": [
-        "161",
-        0
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "$prompt"
-    }
-  },
-  "128": {
-    "inputs": {
-      "cfg": 4,
+      "cfg": 1,
       "model": [
-        "159",
+        "320:285",
         0
       ],
       "positive": [
-        "199",
+        "320:284",
         0
       ],
       "negative": [
-        "107",
+        "320:284",
         1
       ]
     },
@@ -199,93 +142,237 @@
       "title": "CFG引导器"
     }
   },
-  "130": {
+  "320:283": {
     "inputs": {
-      "value": 30
+      "noise": [
+        "320:277",
+        0
+      ],
+      "guider": [
+        "320:314",
+        0
+      ],
+      "sampler": [
+        "320:291",
+        0
+      ],
+      "sigmas": [
+        "320:306",
+        0
+      ],
+      "latent_image": [
+        "320:318",
+        0
+      ]
     },
-    "class_type": "PrimitiveInt",
+    "class_type": "SamplerCustomAdvanced",
     "_meta": {
-      "title": "$frame_rate.value"
+      "title": "自定义采样器（高级）"
     }
   },
-  "135": {
+  "320:284": {
+    "inputs": {
+      "positive": [
+        "320:304",
+        0
+      ],
+      "negative": [
+        "320:304",
+        1
+      ],
+      "latent": [
+        "320:307",
+        0
+      ]
+    },
+    "class_type": "LTXVCropGuides",
+    "_meta": {
+      "title": "LTXV裁剪指导"
+    }
+  },
+  "320:286": {
+    "inputs": {
+      "longer_edge": 1536,
+      "images": [
+        "320:290",
+        0
+      ]
+    },
+    "class_type": "ResizeImagesByLongerEdge",
+    "_meta": {
+      "title": "缩放图像（长边）"
+    }
+  },
+  "320:287": {
+    "inputs": {
+      "samples": [
+        "320:307",
+        0
+      ],
+      "upscale_model": [
+        "320:311",
+        0
+      ],
+      "vae": [
+        "320:316",
+        2
+      ]
+    },
+    "class_type": "LTXVLatentUpsampler",
+    "_meta": {
+      "title": "LTXV潜空间上采样器"
+    }
+  },
+  "320:288": {
+    "inputs": {
+      "strength": 1,
+      "bypass": [
+        "320:302",
+        0
+      ],
+      "vae": [
+        "320:316",
+        2
+      ],
+      "image": [
+        "320:289",
+        0
+      ],
+      "latent": [
+        "320:287",
+        0
+      ]
+    },
+    "class_type": "LTXVImgToVideoInplace",
+    "_meta": {
+      "title": "LTXV图像转视频（原地）"
+    }
+  },
+  "320:289": {
+    "inputs": {
+      "img_compression": 18,
+      "image": [
+        "320:286",
+        0
+      ]
+    },
+    "class_type": "LTXVPreprocess",
+    "_meta": {
+      "title": "LTXV预处理"
+    }
+  },
+  "320:290": {
+    "inputs": {
+      "resize_type": "scale dimensions",
+      "resize_type.width": [
+        "320:312",
+        0
+      ],
+      "resize_type.height": [
+        "320:299",
+        0
+      ],
+      "resize_type.crop": "center",
+      "scale_method": "lanczos",
+      "input": [
+        "269",
+        0
+      ]
+    },
+    "class_type": "ResizeImageMaskNode",
+    "_meta": {
+      "title": "调整图像/掩码大小"
+    }
+  },
+  "320:291": {
     "inputs": {
       "sampler_name": "euler_ancestral_cfg_pp"
     },
     "class_type": "KSamplerSelect",
     "_meta": {
-      "title": "KSamplerSelect-p1"
+      "title": "K采样器选择"
     }
   },
-  "142": {
+  "320:292": {
     "inputs": {
-      "a": [
-        "130",
+      "expression": "a/2",
+      "values.a": [
+        "320:312",
         0
       ]
     },
-    "class_type": "CM_IntToFloat",
+    "class_type": "ComfyMathExpression",
     "_meta": {
-      "title": "IntToFloat"
+      "title": "数学表达式"
     }
   },
-  "150": {
+  "320:294": {
     "inputs": {
-      "frame_rate": [
-        "142",
-        0
-      ],
-      "loop_count": 0,
-      "filename_prefix": "ltx-2.3/i2v/20260329-1",
-      "format": "video/h264-mp4",
-      "pix_fmt": "yuv420p",
-      "crf": 19,
-      "save_metadata": false,
-      "trim_to_audio": false,
-      "pingpong": false,
-      "save_output": true,
-      "images": [
-        "151",
-        0
-      ],
-      "audio": [
-        "152",
+      "expression": "a/2",
+      "values.a": [
+        "320:299",
         0
       ]
     },
-    "class_type": "VHS_VideoCombine",
+    "class_type": "ComfyMathExpression",
     "_meta": {
-      "title": "Video Combine 🎥🅥🅗🅢"
+      "title": "数学表达式"
     }
   },
-  "151": {
+  "320:295": {
     "inputs": {
-      "tile_size": 512,
-      "overlap": 64,
-      "temporal_size": 64,
-      "temporal_overlap": 16,
-      "samples": [
-        "116",
+      "width": [
+        "320:292",
+        1
+      ],
+      "height": [
+        "320:294",
+        1
+      ],
+      "length": [
+        "320:323",
+        1
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyLTXVLatentVideo",
+    "_meta": {
+      "title": "空Latent视频（LTXV）"
+    }
+  },
+  "320:296": {
+    "inputs": {
+      "strength": 0.7,
+      "bypass": [
+        "320:302",
         0
       ],
       "vae": [
-        "199",
-        1
+        "320:316",
+        2
+      ],
+      "image": [
+        "320:289",
+        0
+      ],
+      "latent": [
+        "320:295",
+        0
       ]
     },
-    "class_type": "VAEDecodeTiled",
+    "class_type": "LTXVImgToVideoInplace",
     "_meta": {
-      "title": "VAE解码（分块）"
+      "title": "LTXV图像转视频（原地）"
     }
   },
-  "152": {
+  "320:297": {
     "inputs": {
       "samples": [
-        "116",
+        "320:309",
         1
       ],
       "audio_vae": [
-        "160",
+        "320:279",
         0
       ]
     },
@@ -294,7 +381,265 @@
       "title": "LTXV音频VAE解码"
     }
   },
-  "159": {
+  "320:298": {
+    "inputs": {
+      "expression": "a",
+      "values.a": [
+        "320:300",
+        0
+      ]
+    },
+    "class_type": "ComfyMathExpression",
+    "_meta": {
+      "title": "数学表达式"
+    }
+  },
+  "320:299": {
+    "inputs": {
+      "value": [
+        "325",
+        0
+      ]
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Height"
+    }
+  },
+  "320:300": {
+    "inputs": {
+      "value": [
+        "326",
+        0
+      ]
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Frame Rate"
+    }
+  },
+  "320:301": {
+    "inputs": {
+      "value": [
+        "327",
+        0
+      ]
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Duration"
+    }
+  },
+  "320:302": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "PrimitiveBoolean",
+    "_meta": {
+      "title": "Switch to Text to Video?"
+    }
+  },
+  "320:303": {
+    "inputs": {
+      "text": [
+        "320:319",
+        0
+      ],
+      "clip": [
+        "320:317",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码"
+    }
+  },
+  "320:304": {
+    "inputs": {
+      "frame_rate": [
+        "320:298",
+        0
+      ],
+      "positive": [
+        "320:303",
+        0
+      ],
+      "negative": [
+        "320:313",
+        0
+      ]
+    },
+    "class_type": "LTXVConditioning",
+    "_meta": {
+      "title": "LTXV条件"
+    }
+  },
+  "320:305": {
+    "inputs": {
+      "frames_number": [
+        "320:323",
+        1
+      ],
+      "frame_rate": [
+        "320:298",
+        1
+      ],
+      "batch_size": 1,
+      "audio_vae": [
+        "320:279",
+        0
+      ]
+    },
+    "class_type": "LTXVEmptyLatentAudio",
+    "_meta": {
+      "title": "LTXV 空音频潜空间"
+    }
+  },
+  "320:306": {
+    "inputs": {
+      "sigmas": "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"
+    },
+    "class_type": "ManualSigmas",
+    "_meta": {
+      "title": "自定义Sigmas"
+    }
+  },
+  "320:307": {
+    "inputs": {
+      "av_latent": [
+        "320:283",
+        0
+      ]
+    },
+    "class_type": "LTXVSeparateAVLatent",
+    "_meta": {
+      "title": "LTXV分离音视频潜空间"
+    }
+  },
+  "320:308": {
+    "inputs": {
+      "noise": [
+        "320:276",
+        0
+      ],
+      "guider": [
+        "320:282",
+        0
+      ],
+      "sampler": [
+        "320:280",
+        0
+      ],
+      "sigmas": [
+        "320:281",
+        0
+      ],
+      "latent_image": [
+        "320:278",
+        0
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "自定义采样器（高级）"
+    }
+  },
+  "320:309": {
+    "inputs": {
+      "av_latent": [
+        "320:308",
+        0
+      ]
+    },
+    "class_type": "LTXVSeparateAVLatent",
+    "_meta": {
+      "title": "LTXV分离音视频潜空间"
+    }
+  },
+  "320:310": {
+    "inputs": {
+      "fps": [
+        "320:298",
+        0
+      ],
+      "images": [
+        "320:315",
+        0
+      ],
+      "audio": [
+        "320:297",
+        0
+      ]
+    },
+    "class_type": "CreateVideo",
+    "_meta": {
+      "title": "创建视频"
+    }
+  },
+  "320:311": {
+    "inputs": {
+      "model_name": "ltx-2.3-spatial-upscaler-x2-1.1.safetensors"
+    },
+    "class_type": "LatentUpscaleModelLoader",
+    "_meta": {
+      "title": "加载Latent放大模型"
+    }
+  },
+  "320:312": {
+    "inputs": {
+      "value": [
+        "324",
+        0
+      ]
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Width"
+    }
+  },
+  "320:314": {
+    "inputs": {
+      "cfg": 1,
+      "model": [
+        "320:285",
+        0
+      ],
+      "positive": [
+        "320:304",
+        0
+      ],
+      "negative": [
+        "320:304",
+        1
+      ]
+    },
+    "class_type": "CFGGuider",
+    "_meta": {
+      "title": "CFG引导器"
+    }
+  },
+  "320:315": {
+    "inputs": {
+      "tile_size": 768,
+      "overlap": 64,
+      "temporal_size": 4096,
+      "temporal_overlap": 4,
+      "samples": [
+        "320:309",
+        0
+      ],
+      "vae": [
+        "320:316",
+        2
+      ]
+    },
+    "class_type": "VAEDecodeTiled",
+    "_meta": {
+      "title": "VAE解码（分块）"
+    }
+  },
+  "320:316": {
     "inputs": {
       "ckpt_name": "ltx-2.3-22b-dev-fp8.safetensors"
     },
@@ -303,16 +648,7 @@
       "title": "Checkpoint加载器（简易）"
     }
   },
-  "160": {
-    "inputs": {
-      "ckpt_name": "ltx-2.3-22b-dev-fp8.safetensors"
-    },
-    "class_type": "LTXVAudioVAELoader",
-    "_meta": {
-      "title": "LTXV音频VAE加载器"
-    }
-  },
-  "161": {
+  "320:317": {
     "inputs": {
       "text_encoder": "gemma_3_12B_it_fp4_mixed.safetensors",
       "ckpt_name": "ltx-2.3-22b-dev-fp8.safetensors",
@@ -323,82 +659,85 @@
       "title": "LTXV音频文本编码器加载器"
     }
   },
-  "180": {
+  "320:318": {
     "inputs": {
-      "image": "sence2.png"
-    },
-    "class_type": "LoadImage",
-    "_meta": {
-      "title": "$image"
-    }
-  },
-  "181": {
-    "inputs": {
-      "strength": 1,
-      "bypass": false,
-      "vae": [
-        "199",
-        1
-      ],
-      "image": [
-        "185",
+      "video_latent": [
+        "320:296",
         0
       ],
-      "latent": [
-        "108",
+      "audio_latent": [
+        "320:305",
         0
       ]
     },
-    "class_type": "LTXVImgToVideoInplace",
+    "class_type": "LTXVConcatAVLatent",
     "_meta": {
-      "title": "LTXV图像转视频（原地）"
+      "title": "LTXVConcatAVLatent"
     }
   },
-  "185": {
+  "320:319": {
     "inputs": {
-      "img_compression": 33,
-      "image": [
-        "180",
-        0
-      ]
-    },
-    "class_type": "LTXVPreprocess",
-    "_meta": {
-      "title": "LTXV预处理"
-    }
-  },
-  "199": {
-    "inputs": {
-      "signal": [
-        "107",
-        0
-      ],
       "value": [
-        "159",
-        2
+        "329",
+        0
       ]
     },
-    "class_type": "ImpactExecutionOrderController",
+    "class_type": "PrimitiveStringMultiline",
     "_meta": {
-      "title": "Execution Order Controller"
+      "title": "Prompt"
     }
   },
-  "213": {
+  "320:323": {
     "inputs": {
-      "value": 1280
+      "expression": "a * b + 1",
+      "values.a": [
+        "320:301",
+        0
+      ],
+      "values.b": [
+        "320:300",
+        0
+      ]
     },
-    "class_type": "Int",
+    "class_type": "ComfyMathExpression",
     "_meta": {
-      "title": "$width.value"
+      "title": "Math Expression (length)"
     }
   },
-  "214": {
+  "320:279": {
     "inputs": {
-      "value": 704
+      "ckpt_name": "ltx-2.3-22b-dev-fp8.safetensors"
     },
-    "class_type": "Int",
+    "class_type": "LTXVAudioVAELoader",
     "_meta": {
-      "title": "$height.value"
+      "title": "LTXV音频VAE加载器"
+    }
+  },
+  "320:285": {
+    "inputs": {
+      "lora_name": "ltx-2.3-22b-distilled-lora-384-1.1.safetensors",
+      "strength_model": 0.5,
+      "model": [
+        "320:316",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA加载器（仅模型）"
+    }
+  },
+  "320:313": {
+    "inputs": {
+      "text": "blurry, low quality, still frame, frames, watermark, overlay, titles, has blurbox, has subtitles",
+      "clip": [
+        "320:317",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码"
     }
   }
 }

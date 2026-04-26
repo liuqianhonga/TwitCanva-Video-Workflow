@@ -420,8 +420,8 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
         const newModel = VIDEO_MODELS.find(m => m.id === modelId);
         const updates: Partial<typeof data> = { videoModel: modelId };
 
-        // Reset duration if current duration is not supported by new model
-        if (newModel?.durations && data.videoDuration && !newModel.durations.includes(data.videoDuration)) {
+        // Reset duration if current duration is missing or not supported by new model
+        if (newModel?.durations && (!data.videoDuration || !newModel.durations.includes(data.videoDuration))) {
             updates.videoDuration = newModel.durations[0];
         }
 
@@ -442,16 +442,19 @@ const NodeControlsComponent: React.FC<NodeControlsProps> = ({
     // Get available durations for current model
     const availableDurations = currentVideoModel.durations || [5];
     const currentDuration = data.videoDuration || availableDurations[0];
+    const modelDurationResolutionMap = (currentVideoModel as any).durationResolutionMap;
+    const availableResolutions = modelDurationResolutionMap
+        ? (modelDurationResolutionMap[currentDuration] || currentVideoModel.resolutions || VIDEO_RESOLUTIONS)
+        : (currentVideoModel.resolutions || VIDEO_RESOLUTIONS);
 
-    // Get available resolutions for current model (considering duration for models with durationResolutionMap)
-    const getAvailableResolutions = () => {
-        const model = currentVideoModel as any;
-        if (model.durationResolutionMap && currentDuration) {
-            return model.durationResolutionMap[currentDuration] || model.resolutions || VIDEO_RESOLUTIONS;
-        }
-        return model.resolutions || VIDEO_RESOLUTIONS;
-    };
-    const availableResolutions = getAvailableResolutions();
+    // Ensure video nodes persist an explicit duration value (not only UI fallback)
+    useEffect(() => {
+        if (data.type !== NodeType.VIDEO) return;
+        if (data.videoDuration) return;
+        if (!availableDurations.length) return;
+        onUpdate(data.id, { videoDuration: availableDurations[0] });
+    }, [data.type, data.id, data.videoDuration, availableDurations, onUpdate]);
+
 
     // sizeOptions: For video nodes use model-specific resolutions, for image nodes use aspect ratios
     const sizeOptions = (data.type === NodeType.VIDEO || data.type === NodeType.LOCAL_VIDEO_MODEL)

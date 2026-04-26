@@ -267,7 +267,11 @@ router.post('/generate-image', async (req, res) => {
 
 router.post('/generate-video', async (req, res) => {
     try {
-        const { nodeId, prompt, imageBase64: rawImageBase64, lastFrameBase64: rawLastFrameBase64, motionReferenceUrl: rawMotionReferenceUrl, aspectRatio, resolution, duration, videoModel, videoMode } = req.body;
+        const { nodeId, prompt, imageBase64: rawImageBase64, lastFrameBase64: rawLastFrameBase64, motionReferenceUrl: rawMotionReferenceUrl, aspectRatio, resolution, duration: rawDuration, fps: rawFps, videoModel, videoMode } = req.body;
+        const parsedDuration = Number(rawDuration);
+        const duration = Number.isFinite(parsedDuration) && parsedDuration > 0 ? parsedDuration : undefined;
+        const parsedFps = Number(rawFps);
+        const fps = Number.isFinite(parsedFps) && parsedFps > 0 ? parsedFps : undefined;
         const {
             GEMINI_API_KEY,
             KLING_ACCESS_KEY,
@@ -316,10 +320,11 @@ router.post('/generate-video', async (req, res) => {
                     aspectRatio,
                     resolution,
                     duration,
-                    frameRate:   24,
+                    fps:         fps || 24,
                     videoMode,
                     workflowFile:         workflowEntry.json,
                     workflowPreprocessor: workflowEntry.module,
+                    nodeId,
                     baseUrl: COMFYUI_BASE_URL,
                     apiKey: COMFYUI_API_KEY,
                     timeoutMs: COMFYUI_TIMEOUT_MS,
@@ -338,8 +343,10 @@ router.post('/generate-video', async (req, res) => {
                     aspectRatio,
                     resolution,
                     duration,
+                    fps:         fps || 24,
                     videoMode,
                     workflowId,        // ComfyUI-Manager workflow_id
+                    nodeId,
                     baseUrl: COMFYUI_BASE_URL,
                     apiKey: COMFYUI_API_KEY,
                     timeoutMs: COMFYUI_TIMEOUT_MS,

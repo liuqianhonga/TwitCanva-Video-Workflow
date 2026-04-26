@@ -79,27 +79,78 @@ function getPromptEntry(history, promptId) {
     return null;
 }
 
+function detectAssetKind(item) {
+    const text = [
+        item?.filename || '',
+        item?.url || '',
+        item?.format || '',
+        item?.mime || '',
+        item?.content_type || '',
+        item?.type || '',
+    ].join(' ').toLowerCase();
+
+    if (/\.(mp4|webm|mov|mkv|avi|gif)(\?|$)/.test(text) || text.includes('video/') || text.includes('h264') || text.includes('h265')) {
+        return 'video';
+    }
+    if (/\.(png|jpg|jpeg|webp|bmp|svg)(\?|$)/.test(text) || text.includes('image/')) {
+        return 'image';
+    }
+    return 'unknown';
+}
+
+function collectAssetItems(value, out = []) {
+    if (Array.isArray(value)) {
+        for (const item of value) {
+            collectAssetItems(item, out);
+        }
+        return out;
+    }
+
+    if (!value || typeof value !== 'object') {
+        return out;
+    }
+
+    if (value.filename || value.url) {
+        out.push(value);
+    }
+
+    for (const v of Object.values(value)) {
+        if (v && typeof v === 'object') {
+            collectAssetItems(v, out);
+        }
+    }
+
+    return out;
+}
+
 function collectOutputAssets(outputs, mode) {
     if (!outputs || typeof outputs !== 'object') return [];
 
     const assets = [];
+    const seen = new Set();
+
     for (const nodeOutput of Object.values(outputs)) {
         if (!nodeOutput || typeof nodeOutput !== 'object') continue;
 
-        const list = mode === 'video'
-            ? (nodeOutput.videos || nodeOutput.gifs || [])
-            : (nodeOutput.images || []);
+        const items = collectAssetItems(nodeOutput);
+        for (const item of items) {
+            if (!item || (!item.filename && !item.url)) continue;
 
-        if (Array.isArray(list)) {
-            for (const item of list) {
-                if (item && (item.filename || item.url)) {
-                    assets.push(item);
-                }
-            }
+            const key = `${item.filename || ''}::${item.url || ''}`;
+            if (seen.has(key)) continue;
+
+            const kind = detectAssetKind(item);
+            if (mode === 'video' && kind === 'image') continue;
+            if (mode === 'image' && kind === 'video') continue;
+
+            seen.add(key);
+            assets.push(item);
         }
     }
+
     return assets;
 }
+
 
 function buildViewUrl(baseUrl, asset) {
     if (asset.url) {
@@ -508,11 +559,12 @@ export async function generateComfyVideo({
     aspectRatio,
     resolution,
     duration,
-    frameRate,
+    fps,
     videoMode,
     workflowId,
     workflowFile,
     workflowPreprocessor,
+    nodeId,
     baseUrl,
     apiKey,
     timeoutMs,
@@ -541,11 +593,12 @@ export async function generateComfyVideo({
             const mod = await import(fileUrl);
             await mod.inject(workflow, {
                 prompt,
-                duration,
-                frameRate:  frameRate || 24,
+                duration: duration ?? 5,
+                fps:        fps || 24,
                 aspectRatio: aspectRatio || '16:9',
                 resolution: resolution || 'Auto',
                 imageBase64,
+                nodeId,
                 seed:       null,
             });
             fs.writeFileSync(path.join(debugDir, `wf_after_${wfShortName}_${Date.now()}.json`), JSON.stringify(workflow, null, 2));

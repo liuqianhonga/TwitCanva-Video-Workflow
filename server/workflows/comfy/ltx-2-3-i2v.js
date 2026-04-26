@@ -82,6 +82,12 @@ async function getImageDimensions(dataUrl) {
     }
 }
 
+function sanitizePrefix(value, fallback = 'ltx_src') {
+    const s = String(value || '').trim();
+    if (!s) return fallback;
+    return s.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 48) || fallback;
+}
+
 function saveImageToInputDir(dataUrl, prefix = 'ltx_img') {
     if (!dataUrl || !dataUrl.startsWith('data:image/')) return null;
 
@@ -142,19 +148,20 @@ export async function inject(workflow, params) {
     const {
         prompt = '',
         duration = 5,
-        frameRate = 30,
+        fps = 30,
         aspectRatio = '16:9',
         resolution = 'Auto',
         imageBase64 = null,
         seed = null,
+        nodeId = null,
     } = params;
 
-    const frames = Math.round(duration * frameRate);
     const imageDims = await getImageDimensions(imageBase64);
     const targetSize = resolveTargetSize({ aspectRatio, resolution, imageDims });
 
     if (imageBase64) {
-        const imagePath = saveImageToInputDir(imageBase64, 'ltx_src');
+        const imagePrefix = sanitizePrefix(nodeId || 'ltx_src', 'ltx_src');
+        const imagePath = saveImageToInputDir(imageBase64, imagePrefix);
         if (imagePath) {
             setNodeInputByTitle(workflow, '$image', 'image', imagePath);
         }
@@ -162,15 +169,15 @@ export async function inject(workflow, params) {
 
     setNodeInputByTitle(workflow, '$width.value', 'value', targetSize.width);
     setNodeInputByTitle(workflow, '$height.value', 'value', targetSize.height);
-    setNodeInputByTitle(workflow, '$length.value', 'value', frames);
-    setNodeInputByTitle(workflow, '$frame_rate.value', 'value', frameRate);
+    setNodeInputByTitle(workflow, '$duration.value', 'value', duration);
+    setNodeInputByTitle(workflow, '$fps.value', 'value', fps);
 
     for (const [, node] of Object.entries(workflow || {})) {
         if (!node || typeof node !== 'object') continue;
         const title = node._meta?.title || '';
 
-        if (title === '$prompt' && 'text' in (node.inputs || {})) {
-            node.inputs.text = prompt;
+        if (title === '$prompt' && node.inputs && 'value' in node.inputs) {
+            node.inputs.value = prompt;
         }
 
         if (node.class_type === 'RandomNoise' && 'noise_seed' in (node.inputs || {})) {
